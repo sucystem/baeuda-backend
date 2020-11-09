@@ -10,6 +10,7 @@ let lectureRouter = require('./routes/lecture');
 let projectRouter = require('./routes/project');
 let studyRouter = require('./routes/study');
 let communityRouter = require('./routes/community');
+let mysqlRouter = require('./routes/mysql');
 
 let app = express();
 
@@ -29,6 +30,7 @@ app.use('/lecture', lectureRouter);
 app.use('/project', projectRouter);
 app.use('/study', studyRouter);
 app.use('/community', communityRouter);
+app.use('/mysql', mysqlRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
