@@ -1,3 +1,4 @@
 module.exports = {
-    getUserById : 'select * from user where id = ?'
-}
+    selectUserByUserId: "select * from user where userid=?",
+    insertUser: "insert into user(userid, password, user_name, univid, student_id, phone_number) values (?, ?, ?, ?, ?, ?)"
+};
