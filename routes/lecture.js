@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var sql = require('../sql')
-var db = require('../modules/db')
-var helper = require('../modules/helper')
+var db = require('../modules/db');
+var sql = require('../sql');
+var helper = require('../modules/helper');
 
 router.get('/', async function(req, res, next) {
   const { id } = req.user._user[0];

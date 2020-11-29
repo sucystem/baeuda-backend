@@ -31,7 +31,7 @@ router.get('/main', function(req, res, next){
   try{
     const [rows1] = await db.query(sql.study.selectIdNameStudyById, [id]);
     const [rows2] = await db.query(sql.schedule.selectScheduleByDate, [id, curdate()]);
-    const [rows3] = await db.query(sql.study.selectIdNameStudyById, [id]);
+    const [rows3] = await db.query(sql.study.selectIdNameSeatStudyById, [id]);
     if (rows1.length == 0) {
       res.status(200).send({
         result: 'true',
@@ -86,7 +86,7 @@ router.get('/showList', function(req,res,next){
   const { id } = req.user._user[0];
 
   try{
-    const [rows] = await db.query(sql.study.selectAllStudyById, [id]);
+    const [rows] = await db.query(sql.study.selectIdNameSeatStudyById, [id]);
 
     if (rows.length == 0){
         res.status(200).send({
