@@ -193,26 +193,30 @@ router.get('/write', function(req, res, next){
 
 router.post('/write', function(req, res, next){
 
+  var boardId_sRecruit;
   var {name, title, content, writer, postpw, filename} = req.body;
-  var sql = db.query(sql.sql_board_project.insertPost, [name, title, content, writer, postpw, filename, now(), now(), 0]);
-  conn.query(sql, function(err,rows){
-     if(err) 
-          console.error("err: " + err);
-     res.redirect('/study/Recruit');
-  })
-
+  try{
+    await db.query(sql.sql_post.inserPost,[boardId_sRecruit, name, title, content, writer,postpw,now(),now()]);
+    res.status(200).send({
+      msg: '글이 작성되었습니다.'
+    });
+  }catch(e){
+    helper.failedConnectionServer
+  }
 
 });
 
 router.post('/delete', function(req,res,next){
   var [idx, postpw] = req.body;
 
-  var sql = db.query(sql.sql_post.deletePostByIdxPw, [idx, postpw]);
-  conn.query(sql, function(err,rows){
-    if(err)
-      console.error("err: "+ err);
-    res.redirect('/study/Recruit');
-  })
+  try{
+    await db.query(sql.sql_post.deletePostByIdxPw,[idx,postpw]);
+    res.status(200).send({
+      msg: '글이 작성되었습니다.'
+    });
+  }catch(e){
+    helper.failedConnectionServer
+  }
 });
 
 
