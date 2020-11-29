@@ -69,11 +69,9 @@ router.get('/write', function(req, res, next){
 router.post('/write', function(req,res,next){     // 팀프로젝트 모집에 쓸 글들.
     
     // 아직 구체화 하지 않은 변수 목록. 
-    var {name, title, content, writer, filename, passwd} = req.body;
-    var datas = [name,title, content, passwd];
-
+    var {name, title, content, writer, postpw, filename} = req.body;
 //    var sql = "insert into board(name, title, content, regdate, modidate, passwd, hit) values(?,?,?,now(), now(), ?, 0)"
-    var sql = db.query(sql.sql_board_project.insertPost, [name, title, content, passwd])
+    var sql = db.query(sql.sql_board_project.insertPost, [name, title, content, writer, postpw, filename, now(), now(), 0])
     conn.query(sql, function(err,rows){
      if(err) 
           console.error("err: " + err);
