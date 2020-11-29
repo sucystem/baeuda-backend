@@ -47,9 +47,9 @@ router.get('/all', async function(req, res){
   }
 });
 
-router.post('/register', async function(req, res){
+router.post('/:lecture_id/register', async function(req, res){
   const { id } = req.user._user[0];
-  const { lecture_id } = req.lecture_id;
+  const { lecture_id } = req.params;
 
   try{
     let [rows] = await db.query(sql.lecture.selectLectureById, [lecture_id]);
@@ -74,12 +74,55 @@ router.post('/register', async function(req, res){
   }
 });
 
-router.post('/assign', async function(req, res){
+router.get('/:lecture_id/accept', async function(req, res){
   const { id } = req.user._user[0];
-  const { lecture_id } = req.lecture_id;
+  const { lecture_id } = req.params;
 
   try{
     let [rows] = await db.query(sql.lecture.selectLectureByProf, [lecture_id, id]);
+    if(rows.length == 0){
+      res.status(200).send({
+        result: 'false',
+        data: [],
+        msg: "권한이 없습니다."
+      })
+    } else {
+      [rows] = await db.query(sql.lecture.selectListRequestStudentsByLectureId, [lecture_id]);
+      res.status(200).send({
+        result: 'true',
+        data: rows,
+        msg: '해당 강좌 신청 학생 목록을 조회했습니다.'
+      })
+    }
+  } catch(e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
+
+router.put('/:lecture_id/accept', async function(req, res){
+  const { id } = req.user._user[0];
+  const { lecture_id } = req.params;
+  const { studentId } = req.body;
+
+  try{
+    let [rows] = await db.query(sql.lecture.selectLectureByProf, [lecture_id, id]);
+    if(rows.length == 0){
+      res.send({
+        msg: "권한이 없습니다."
+      });
+    } else {
+      [rows] = await db.query(sql.selectRequestStudentByUserId, [lecture_id, studentId]);
+      if(rows.length == 0){
+        res.send({
+          msg: "신청한 학생이 아닙니다."
+        });
+      } else {
+        await db.query(sql.lecture.updateAcceptStudentByUserId, [lecture_id, studentId]);
+        res.send({
+          msg: "승인되었습니다."
+        });
+      }
+    }
   } catch(e) {
     helper.failedConnectionServer(res, e);
   }
