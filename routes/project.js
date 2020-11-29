@@ -34,7 +34,7 @@ router.get('/projectRoom', function(req,res,next){
 
     connect.query(sql, function(err,rows){
         if(err) console.error("error: " + err);
-        res.render('projectRoom', {title: "프로젝트 대기실", rows:rows})
+        res.render('projectRoom', {title: "프로젝트 대기실", rows:rows});
     })
 })
 
@@ -46,7 +46,7 @@ router.get('/Calender', function(req,res,next){
 
   connect.query(sql, function(err,rows){
       if(err) console.error("error: " + err);
-      res.render('Calender', {title: "팀 프로젝트 일정", rows:rows})
+      res.render('Calender', {title: "팀 프로젝트 일정", rows:rows});
   });
     
 });
@@ -71,7 +71,7 @@ router.post('/write', function(req,res,next){     // 팀프로젝트 모집에 �
     // 아직 구체화 하지 않은 변수 목록. 
     var {name, title, content, writer, postpw, filename} = req.body;
 //    var sql = "insert into board(name, title, content, regdate, modidate, passwd, hit) values(?,?,?,now(), now(), ?, 0)"
-    var sql = db.query(sql.sql_board_project.insertPost, [name, title, content, writer, postpw, filename, now(), now(), 0])
+    var sql = db.query(sql.sql_board_project.insertPost, [name, title, content, writer, postpw, filename, now(), now(), 0]);
     conn.query(sql, function(err,rows){
      if(err) 
           console.error("err: " + err);

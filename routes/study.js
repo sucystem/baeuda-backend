@@ -60,17 +60,15 @@ router.get('/write', function(req, res, next){
   res.render('write', {title: "게시판 글 쓰기"});
 });
 router.post('/write', function(req, res, next){
-  var name = req.body.name;
-  var title = req.body.title;
-  var content = req.body.content;
-  var passwd = req.body.passwd;
-  var datas = [name, title, contetn, idx, passwd];  // 위 모든 데이터 받아오는 배열.
 
-  var sql;
-//  var sql = "insert into ____(name, title, content, )"
-  connect.query(sql,datas,function(err,result){
-      if(err) console.error("err: "+ err);
-      res.redirect('/study/Recruit');
+  var {name, title, content, writer, postpw, filename} = req.body;
+  var sql = db.query(sql.sql_board_project.insertPost, [name, title, content, writer, postpw, filename, now(), now(), 0]);
+  conn.query(sql, function(err,rows){
+     if(err) 
+          console.error("err: " + err);
+     res.redirect('/study/Recruit');
   })
+
+
 })
 module.exports = router;
