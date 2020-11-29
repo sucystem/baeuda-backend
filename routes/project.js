@@ -16,6 +16,12 @@ router.get('/', function(req, res, next) {
 // 기능 페이지 1: 팀 프로젝트 목록
 router.get('/showList', function(req,res,next){
     res.send('respond of fronts: joined project Lists ');
+    var sql;
+
+    connect.query(sql, function(err,rows){
+        if(err) console.error("err: " + err);
+        res.render('showList', {title: "팀 프로젝트 목록", rows:rows});
+    });
 });
 router.get('/projectRoom', function(req,res,next){
     res.send('respond of fronts: show teamProject Room.');
