@@ -1,11 +1,13 @@
 const mysql = require('mysql2/promise')
 
+require('dotenv').config();
+
 const connection = mysql.createPool({
-    host : "baeuda.cmzdcoaqigiy.ap-northeast-2.rds.amazonaws.com",
-    port : 3306,
-    user : "yourproj",
-    password : "2020slvmfhwprxm2",
-    database : "baeuda",
+    host : process.env.MYSQL_HOST,
+    port : process.env.MYSQL_PORT,
+    user : process.env.MYSQL_ID,
+    password : process.env.MYSQL_PASS,
+    database : process.env.MYSQL_DB,
 
     connectionLimit: 100,
     connectTimeout: 600000

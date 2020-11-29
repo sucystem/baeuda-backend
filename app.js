@@ -1,5 +1,6 @@
 var createError = require('http-errors');
 var express = require('express');
+var session = require('express-session');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
@@ -26,6 +27,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// session
+createSession = () =>  {
+	return function (req, res, next) {
+		if (!req.session.login) {
+			req.session.login = 'logout';
+		}
+		next();
+	};
+};
+app.use(session({
+	secret: '1234DSFs@adf1234!@#$asd',
+	resave: false,
+	saveUninitialized: true,
+	cookie: { maxAge: 600000 },
+}));
+app.use(createSession());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
