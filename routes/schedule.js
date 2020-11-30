@@ -16,7 +16,8 @@ router.get('/:month', async function(req, res){
     const { month } = req.params;
 
     try{
-        const [rows] = await db.query(sql.schedule.selectSchedulesByMonth, [month, month]);
+        //const [rows] = await db.query(sql.schedule.selectTest);
+        const [rows] = await db.query(sql.schedule.selectSchedulesByMonth, [id, month, month]);
         res.status(200).send({
             result: "true",
             data: rows,
