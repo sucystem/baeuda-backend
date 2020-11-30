@@ -12,7 +12,7 @@ router.get('/', function (req, res) {
     res.send("schedule");
 });
 
-router.get('/:month', async function(req, res){
+router.get('/month/:month', async function(req, res){
     const { id } = req.user._user;
     const { month } = req.params;
 
@@ -38,7 +38,6 @@ router.get('/:month', async function(req, res){
 
 router.get('/thisweek', async function(req, res){
     const { id } = req.user._user;
-
     try{
         //const [rows] = await db.query(sql.schedule.selectTest);
         var [rows] = await db.query(sql.schedule.selectWeekSchedules, [id]);
