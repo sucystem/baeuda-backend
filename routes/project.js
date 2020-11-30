@@ -176,12 +176,20 @@ router.get('/Recruit/:page', function(req,res,next){
       res.status(200).send({
         result : 'true',
         data : [],
+  //      rows:rows,
+        page:page,
+        length:rows.length-1,
+        page_num: 10,
         msg: ''  
       })
     }else{      // 잠깐 보류 : 201130/08:40
       res.status(200).send({
         result: 'true',
-        data: rows,
+ //       data: rows,
+        rows:rows,
+        page:page,
+        length:rows.length-1,
+        page_num: 10,
         msg: '모든 프로젝트 목록 조회'
       })
       res.render('Recruit', {title: "프로젝트 모집 페이지"})

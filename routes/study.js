@@ -158,19 +158,32 @@ router.get('/Recruit/:page', function(req,res,next){
   // var sql;
   //  sql = "select idx, name, title, date_format(moDate,'%Y-%m-%d %H:%i:%s') moDate, " +
   //  "date_format(regDate,'%Y-%m-%d %H:%i:%s') regDate,hit from board";
+  // connect.query(sql, function(err,rows){
+  //  if(err) console.error(err);
+  // res.render('Recruit', {title: "스터디 모집 페이지", rows:rows, page:page, length: rows.length-1, page_num:10, pass:true});
+  //  console.log(rows.length-1);
+ // });
 
   try{
     const [rows] = await db.query("select recruitTitle, currentSeat, maxSeat ",[]);
     if(rows.length == 0){
       res.status(200).send({
         result : 'true',
-        data : [],
-        msg: ''  
+//        data : [],
+        rows:rows,
+        page:page,
+        length:rows.length-1,
+        page_num: 10,
+        msg: "등록된 모집 게시물 없음."  
       })
     }else{      // 잠깐 보류 : 201130/06:40
       res.status(200).send({
         result: 'true',
-        data: rows,
+//        data: rows,
+        rows:rows,
+        page:page,
+        length:rows.length-1,
+        page_num: 10,
         msg: '모든 스터디 목록 조회'
       })
       res.render('Recruit', {title: "스터디 모집 페이지"})
@@ -180,11 +193,7 @@ router.get('/Recruit/:page', function(req,res,next){
     helper.failedConnectionServer
   }
 
-  connect.query(sql, function(err,rows){
-    if(err) console.error(err);
-    res.render('Recruit', {title: "스터디 모집 페이지", rows:rows, page:page, length: rows.length-1, page_num:10, pass:true});
-    console.log(rows.length-1);
-  });
+
 });
 
 router.get('/write', function(req, res, next){
