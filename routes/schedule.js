@@ -3,6 +3,7 @@ var router = express.Router();
 var sql = require('../sql')
 var db = require('../modules/db')
 var helper = require('../modules/helper')
+var tokenUser = require('../modules/user')
 
 router.use(tokenUser.tokenToUser);
 
