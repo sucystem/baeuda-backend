@@ -17,7 +17,12 @@ router.get('/:month', async function(req, res){
 
     try{
         //const [rows] = await db.query(sql.schedule.selectTest);
-        const [rows] = await db.query(sql.schedule.selectSchedulesByMonth, [id, month, month]);
+        var [rows] = await db.query(sql.schedule.selectSchedulesByMonth, [id, month, month]);
+        rows.map((row) => {
+            row.id = String(row.id);
+            row.calendarId = String(row.calendarId);
+        });
+        console.log(rows);
         res.status(200).send({
             result: "true",
             data: rows,
