@@ -47,6 +47,7 @@ router.get('/:board_id/post/:post_id', async function (req, res) {
                 msg: "권한이 없습니다."
             })
         } else {
+            await db.query(sql.board.increaseCountByPostId, [post_id]);
             const [post] = await db.query(sql.board.selectPostByPostId, [post_id]);
             const [comments] = await db.query(sql.board.selectCommentsByPostId, [post_id]);
             res.status(200).send({
