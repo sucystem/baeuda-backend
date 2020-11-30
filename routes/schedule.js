@@ -24,6 +24,7 @@ router.get('/:month', async function(req, res){
             row.calendarId = String(row.calendarId);
             row.start = moment(row.start).format("YYYY-MM-DDThh:mm:ss+09:00")
             row.end = moment(row.end).format("YYYY-MM-DDThh:mm:ss+09:00")
+            if(row.dueDateClass == null) row.dueDateClass = '';
         });
         res.status(200).send({
             result: "true",
