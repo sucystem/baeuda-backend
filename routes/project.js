@@ -5,18 +5,18 @@ const helper = require('../modules/helper');
 const sql = require('../sql')
 
 
-router.get('/', function(req, res, next) {
+router.get('/',async  function(req, res, next) {
   res.send('respond of project request');
 
 });
 
 // progect에서 하는건?  팀 프로젝트 목록 표시, 모집, 일정 표시. 
 
-router.get('/', function(req,res,next){
+router.get('/',async  function(req,res,next){
     res.send('탭에 필요한 정보 및 하위 기능: ');
   });
 
-router.get('/main', function(req, res, next){
+router.get('/main',async  function(req, res, next){
     // 팀 프로젝트 목록, 팀 프로젝트 일정, 팀 프로젝트 모집 세 페이지를 간략적으로 보여주는 메인 페이지.
     // 페이지에서  보여줄 정보: 팀 프로젝트 목록의 제목들. 팀 프로젝트 일정의 제목들과 올린 시간. 팀 프로젝트 모집의 제목들과 사람 수.       id를 필요로 함.
     res.send('respond of fronts: main page of each page. 3 Area.   1. 각 팀 프로젝트 제목. 2. 각 팀 프로젝트 일정들의 제목. 3. 각 팀 프로젝트 모집 글들의 제목.');
@@ -81,7 +81,7 @@ router.get('/main', function(req, res, next){
 
   
 // 기능 페이지 1: 팀 프로젝트 목록
-router.get('/showList', function(req,res,next){
+router.get('/showList',async  function(req,res,next){
 
     res.send('respond of fronts: joined project Lists ');
     const { id } = req.user._user[0];
@@ -125,7 +125,7 @@ router.get('/showList', function(req,res,next){
 
 // 기능 페이지 2: 팀 프로젝트 일정
 // ! Study 페이지와 다른것은, 스터디는 일정이 하루단위지만 프로젝트는 기간단위라는 것.
-router.get('/Calender', function(req,res,next){
+router.get('/Calender',async  function(req,res,next){
     // 탭으로 들어온 프로젝트 일정 페이지.
     // 페이지에서 보여줄 정보: 표(프론트), 색으로 표시된 일정들? 
     res.send('respond of fronts: Monthly calender showing Project Goals\n');
@@ -159,10 +159,10 @@ router.get('/Calender', function(req,res,next){
 
 
 // 기능 페이지 3: 팀 프로젝트 모집
-router.get('/Recruit/', function(req,res,next){
+router.get('/Recruit/',async  function(req,res,next){
     res.redirect('/project/Recruit/1');
 });
-router.get('/Recruit/:page', function(req,res,next){
+router.get('/Recruit/:page',async  function(req,res,next){
   // 페이지에서 보여줄 정보: (페이지 형식) 프로젝트 제목. 참여인원수, 참여인원 최대 
   res.send('respond of fronts: Board showing avaliable recruits, Finding for teamates');
   var page = req.params.page;
@@ -201,7 +201,7 @@ router.get('/Recruit/:page', function(req,res,next){
 
 });
 
-router.get('/write', function(req, res, next){
+router.get('/write',async  function(req, res, next){
     var sql = sql_board_project.
     connect.query(sql,function(err,rows){
         if(err) console.error("error: ", err);
@@ -209,7 +209,7 @@ router.get('/write', function(req, res, next){
     })
 });
 
-router.post('/write', function(req, res, next){
+router.post('/write',async  function(req, res, next){
 
     var boardId_pRecruit;
     var {name, title, content, writer, postpw, filename} = req.body;
@@ -224,7 +224,7 @@ router.post('/write', function(req, res, next){
   
   });
 
- router.post('/delete', function(req,res,next){
+ router.post('/delete',async  function(req,res,next){
     var [idx, postpw] = req.body;
   
     try{

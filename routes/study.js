@@ -15,7 +15,7 @@ router.get('/', function(req, res, next) {
 router.get('/', function(req,res,next){
   res.send('탭에 필요한 정보 및 하위 기능: ');
 });
-router.get('/main', function(req, res, next){
+router.get('/main',async  function(req, res, next){
   // 스터디 목록, 스터디 일정, 스터디 모집 세 페이지를 간략적으로 보여주는 메인 페이지.
   // 페이지에서  보여줄 정보: 스터디 목록의 제목들. 스터디 일정의 제목들과 올린 시간. 스터디 모집의 제목들과 사람 수.       id를 필요로 함.
   res.send('respond of fronts: main page of each page. 3 Area.   1. 스터디 목록의 제목. 2. 스터디 일정들의 제목. 3. 스터디 모집의 제목.');
@@ -78,7 +78,7 @@ router.get('/main', function(req, res, next){
 
 });
 // 스터디 페이지 1: 스터디 목록
-router.get('/showList', function(req,res,next){
+router.get('/showList',async  function(req,res,next){
   // 탭으로 들어온 스터디 목록 페이지.
   // 페이지에서 보여줄 정보: 스터디 제목. 스터디 인수. 
   res.send('respond of fronts: joined project Lists ');
@@ -112,7 +112,7 @@ router.get('/showList', function(req,res,next){
 
 
 // 스터디 페이지 2: 스터디 일정
-router.get('/Calender', function(req,res,next){
+router.get('/Calender',async  function(req,res,next){
   // 탭으로 들어온 스터디 일정 페이지.
   // 페이지에서 보여줄 정보: 표(프론트), 색으로 표시된 일정들? 
   res.send('respond of fronts: Monthly calender showing study Goals\n');
@@ -146,12 +146,12 @@ router.get('/Calender', function(req,res,next){
 
 
 // 스터디 페이지 3: 스터디 모집
-router.get('/Recruit/', function(req,res,next){
+router.get('/Recruit/',async function(req,res,next){
   // 탭으로 들어오면 바로 1페이지로 이동.
   res.redirect('/study/Recruit/1');
 });
 
-router.get('/Recruit/:page', function(req,res,next){
+router.get('/Recruit/:page',async  function(req,res,next){
   // 페이지에서 보여줄 정보: (페이지 형식) 스터디 제목. 참여인원수, 참여인원 최대 
   res.send('respond of fronts: Board showing avaliable recruits, Finding for teamates');
   var page = req.params.page;
@@ -196,11 +196,11 @@ router.get('/Recruit/:page', function(req,res,next){
 
 });
 
-router.get('/write', function(req, res, next){
+router.get('/write',async  function(req, res, next){
   res.render('write', {title: "게시판 글 쓰기"});
 });
 
-router.post('/write', function(req, res, next){
+router.post('/write', async function(req, res, next){
 
   var boardId_sRecruit;
   var {name, title, content, writer, postpw, filename} = req.body;
@@ -215,7 +215,7 @@ router.post('/write', function(req, res, next){
 
 });
 
-router.post('/delete', function(req,res,next){
+router.post('/delete',async  function(req,res,next){
   var [idx, postpw] = req.body;
 
   try{
