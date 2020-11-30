@@ -10,7 +10,7 @@ router.get('/', function (req, res) {
     res.send("schedule");
 });
 
-router.get('/:month', function(req, res){
+router.get('/:month', async function(req, res){
     const { id } = req.user._user;
     const { month } = req.params;
 
