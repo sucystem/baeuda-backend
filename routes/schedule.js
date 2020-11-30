@@ -4,6 +4,7 @@ var sql = require('../sql')
 var db = require('../modules/db')
 var helper = require('../modules/helper')
 var tokenUser = require('../modules/user')
+const moment = require('moment')
 
 router.use(tokenUser.tokenToUser);
 
@@ -21,8 +22,9 @@ router.get('/:month', async function(req, res){
         rows.map((row) => {
             row.id = String(row.id);
             row.calendarId = String(row.calendarId);
+            row.start = moment(row.start).format("YYYY-MM-DDThh:mm:ss+09:00")
+            row.end = moment(row.end).format("YYYY-MM-DDThh:mm:ss+09:00")
         });
-        console.log(rows);
         res.status(200).send({
             result: "true",
             data: rows,
