@@ -36,4 +36,27 @@ router.get('/:month', async function(req, res){
     }
 });
 
+router.get('/thisweek', async function(req, res){
+    const { id } = req.user._user;
+
+    try{
+        //const [rows] = await db.query(sql.schedule.selectTest);
+        var [rows] = await db.query(sql.schedule.selectWeekSchedules, [id]);
+        rows.map((row) => {
+            row.id = String(row.id);
+            row.calendarId = String(row.calendarId);
+            row.start = moment(row.start).format("YYYY-MM-DDThh:mm:ss+09:00")
+            row.end = moment(row.end).format("YYYY-MM-DDThh:mm:ss+09:00")
+            if(row.dueDateClass == null) row.dueDateClass = '';
+        });
+        res.status(200).send({
+            result: "true",
+            data: rows,
+            msg: "이번주 일정을 불러왔습니다."
+        })
+    } catch(e) {
+        helper.failedConnectionServer(res, e);
+    }
+});
+
 module.exports = router;
