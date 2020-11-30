@@ -27,7 +27,7 @@ router.get('/:board_id', async function (req, res) {
                 msg: "게시글 목록을 읽었습니다."
             });
         }
-    } catch(e) {
+    } catch (e) {
         helper.failedConnectionServer(res, e);
     }
 });
@@ -48,5 +48,25 @@ router.get('/post/:post_id', async function (req, res) {
     }
 });
 
+router.post('/:board_id/newPost', async function (req, res) {
+    const id = JSON.parse(req.headers.user).id;
+    const { title, content } = req.body;
+    const { board_id } = req.params;
+    try {
+        let [rows] = await db.query(sql.board.checkWriteLevelByUserId, [board_id, id]);
+        if (rows.length == 0) {
+            res.send({
+                msg: "권한이 없습니다."
+            })
+        } else {
+            await db.query(sql.board.insertPost, [board_id, title, content, id, null]);
+            res.status(200).send({
+                msg: "게시글 등록에 성공했습니다."
+            });
+        }
+    } catch (e) {
+        helper.failedConnectionServer(res, e);
+    }
+});
 
 module.exports = router;

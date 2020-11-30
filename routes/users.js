@@ -46,8 +46,8 @@ router.post('/login', async function (req, res) {
     else {
       rows = rows[0]
       if (password == rows.password) {
-        req.session.username = rows.userid;
-        req.session.login = 'login';
+        req.session.user_id = rows.id;
+        req.session.user_name = rows.user_name;
         flag = true;
         req.session.save(() => {
           const token = jwt.sign({ _user: rows }, process.env.TOKEN_SECRET);
