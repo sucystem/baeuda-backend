@@ -35,6 +35,30 @@ router.get('/:board_id', async function (req, res) {
     }
 });
 
+router.post('/delete/post', async function(req, res){
+    const { id } = req.user._user;
+    const { boardId, postId } = req.body;
+    try{
+        let [rows] = await db.query(sql.board.selectPostByPostIdAndUserId, [postId, id]);
+        if (rows.length == 0) {
+            res.send({
+                result: 'false',
+                data: [],
+                msg: "권한이 없습니다."
+            })
+        } else {
+            [rows] = await db.query(sql.board.deletePostByPostId, [postId]);
+            res.send({
+                result: 'true',
+                data: rows,
+                msg: "게시글을 삭제했습니다."
+            });
+        }
+    } catch(e) {
+        helper.failedConnectionServer(res, e);
+    }
+})
+
 router.post('/post/:post_id', async function (req, res){
     const { id } = req.user._user;
     const { post_id } = req.params;
@@ -66,7 +90,18 @@ router.get('/:board_id/post/:post_id', async function (req, res) {
         } else {
             await db.query(sql.board.increaseCountByPostId, [post_id]);
             const [post] = await db.query(sql.board.selectPostByPostId, [post_id]);
-            const [comments] = await db.query(sql.board.selectCommentsByPostId, [post_id]);
+            let [comment] = await db.query(sql.board.selectCommentsByPostId, [post_id]);
+            
+            var comments = []
+            const promise = comment.map(async row => {
+                if(row.user_id == id){
+                    row['delete'] = '[삭제]';
+                }
+                comments.push(row);
+            })
+
+            await Promise.all(promise);
+            console.log(comments);
             res.status(200).send({
                 result: 'true',
                 data: { post, comments },
@@ -91,9 +126,20 @@ router.get('/:board_id/:post_id/comments', async function (req, res) {
             })
         } else {
             [rows] = await db.query(sql.board.selectCommentsByPostId, [post_id]);
+
+            var data = []
+            const promise = rows.map(async row => {
+                if(row.user_id == id){
+                    row['delete'] = 'x';
+                }
+                console.log(row);
+                data.push(row);
+            })
+
+            await Promise.all(promise);
             res.send({
                 result: 'true',
-                data: rows,
+                data: data,
                 msg: "댓글 목록을 읽었습니다."
             });
         }

@@ -6,5 +6,8 @@ module.exports = {
     checkWriteLevelByUserId: "SELECT * FROM baeuda.board as b, baeuda.user as u WHERE u.level>=b.write_level AND b.id=? AND u.id=?",
     insertPost: "INSERT INTO baeuda.post (board_id, title, content, writer, file) VALUES (?, ?, ?, ?, ?)",
     insertComment: "INSERT INTO baeuda.comment (post_id, user_id, content) VALUES (?, ?, ?)",
-    increaseCountByPostId: "UPDATE baeuda.post SET count = count + 1 WHERE id=?"
+    increaseCountByPostId: "UPDATE baeuda.post SET count = count + 1 WHERE id=?",
+
+    selectPostByPostIdAndUserId: `SELECT * FROM baeuda.post WHERE id=? AND writer=?`,
+    deletePostByPostId: "DELETE FROM baeuda.post WHERE id=?"
 }
