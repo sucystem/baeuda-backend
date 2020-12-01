@@ -66,6 +66,22 @@ router.get('/:lecture_id/info', async function(req, res){
   }
 });
 
+router.get('/:lecture_id/lessons', async function(req, res){
+  const { id } = req.user._user;
+  const { lecture_id } = req.params;
+  try{
+    const [rows] = await db.query(sql.lecture.selectLessonsByLectureId, [lecture_id]);
+
+    res.status(200).send({
+      result: "true",
+      data: rows,
+      msg: "강좌 목록을 불러왔습니다."
+    })
+  } catch(e) {
+    helper.failedConnectionServer(res,e);
+  }
+});
+
 router.post('/:lecture_id/register', async function(req, res){
   const { id } = req.user._user;
   const { lecture_id } = req.params;
