@@ -4,5 +4,7 @@ module.exports = {
     community: require('./community'),
     board: require('./board'),
     schedule: require('./schedule'),
+    study : require('./study'),
+    project : require('./project'),
     chat: require('./chat')
 }
