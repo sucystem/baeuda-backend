@@ -4,7 +4,11 @@ module.exports = {
                                     join lecture_student as s on l.id = s.lecture_id 
                                     join user as u on u.id = l.prof where s.student_id=? AND s.state=?`,
     selectLectureByLectureIdAndUserId: `SELECT * FROM baeuda.lecture_student WHERE lecture_id=? AND student_id=?`,
-    selectLessonsByLectureId: `SELECT * FROM baeuda.lecture_lesson WHERE lecture_id=?`,
+    selectLessonsByLectureId: `SELECT * FROM baeuda.lecture_lesson as l 
+                                JOIN baeuda.lecture_lesson_progress as p 
+                                ON l.id=p.lesson_id
+                                WHERE l.lecture_id=? AND student_id=?`,
+
     selectNoticesByLectureId: `SELECT p.id, p.title, p.content, p.writer, u.user_name, p.file, p.regDate, p.moDate, p.count 
                                 FROM baeuda.user as u 
                                 JOIN baeuda.post as p ON p.writer=u.id 

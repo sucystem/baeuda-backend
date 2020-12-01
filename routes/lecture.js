@@ -70,7 +70,7 @@ router.get('/lessons/:lecture_id', async function (req, res) {
   const { id } = req.user._user;
   const { lecture_id } = req.params;
   try {
-    const [rows] = await db.query(sql.lecture.selectLessonsByLectureId, [lecture_id]);
+    const [rows] = await db.query(sql.lecture.selectLessonsByLectureId, [lecture_id, id]);
 
     res.status(200).send({
       result: "true",
