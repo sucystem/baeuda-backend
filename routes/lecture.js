@@ -92,7 +92,7 @@ router.get('/lessons/:lecture_id', async function (req, res) {
   const { id } = req.user._user;
   const { lecture_id } = req.params;
   try {
-    const [rows] = await db.query(sql.lecture.selectLessonsByLectureId, [lecture_id, id]);
+    const [rows] = await db.query(sql.lecture.selectLessonsByLectureIdAndStudentId, [lecture_id, id]);
 
     res.status(200).send({
       result: "true",
@@ -272,7 +272,7 @@ router.post('/registcancel', async function (req, res) {
   }
 });
 
-router.get('/:lecture_id/accept', async function (req, res) {
+router.get('/accept/:lecture_id', async function (req, res) {
   const { id } = req.user._user[0];
   const { lecture_id } = req.params;
 
@@ -291,6 +291,39 @@ router.get('/:lecture_id/accept', async function (req, res) {
         data: rows,
         msg: '해당 강좌 신청 학생 목록을 조회했습니다.'
       })
+    }
+  } catch (e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
+
+router.post('/accept/:lecture_id', async function (req, res) {
+  const { id } = req.user._user;
+  const { lecture_id } = req.params;
+  const { studentId } = req.body;
+
+  try {
+    let [rows] = await db.query(sql.lecture.selectLectureByProf, [lecture_id, id]);
+    if (rows.length == 0) {
+      res.send({
+        msg: "권한이 없습니다."
+      });
+    } else {
+      [rows] = await db.query(sql.selectRequestStudentByUserId, [lecture_id, studentId]);
+      if (rows.length == 0) {
+        res.send({
+          msg: "신청한 학생이 아닙니다."
+        });
+      } else {
+        await db.query(sql.lecture.updateAcceptStudentByUserId, [lecture_id, studentId]);
+        [rows] = await db.query(sql.selectLessonsByLectureId, [lecture_id]);
+        rows.map(async row => {
+          await db.query(sql.lecture.insertLessonsByLectureIdAndUserId, [row.id, id]);
+        })
+        res.send({
+          msg: "승인되었습니다."
+        });
+      }
     }
   } catch (e) {
     helper.failedConnectionServer(res, e);
@@ -321,46 +354,4 @@ router.get('/complete', async function(req, res) {
   }
 });
 
-router.put('/:lecture_id/accept', async function (req, res) {
-  const { id } = req.user._user;
-  const { lecture_id } = req.params;
-  const { studentId } = req.body;
-
-  try {
-    let [rows] = await db.query(sql.lecture.selectLectureByProf, [lecture_id, id]);
-    if (rows.length == 0) {
-      res.send({
-        msg: "권한이 없습니다."
-      });
-    } else {
-      [rows] = await db.query(sql.selectRequestStudentByUserId, [lecture_id, studentId]);
-      if (rows.length == 0) {
-        res.send({
-          msg: "신청한 학생이 아닙니다."
-        });
-      } else {
-        await db.query(sql.lecture.updateAcceptStudentByUserId, [lecture_id, studentId]);
-        res.send({
-          msg: "승인되었습니다."
-        });
-      }
-    }
-  } catch (e) {
-    helper.failedConnectionServer(res, e);
-  }
-});
-
-router.get('/takeLesson', function (req, res, next) {
-  res.send('수강하기 탭에 필요 정보 및 하위 기능: 미팅룸입장, 수강하기');
-
-})
-router.get('/Notice', function (req, res, next) {
-  res.send('공지사항 탭에 필요 정보 및 하위 기능: 공지사항 열람.');
-})
-router.get('/LearningMaterial', function (req, res, next) {
-  res.send('학습자료에 필요 정보 및 하위 기능: 자료 열람');
-})
-router.get('QnA', function (req, res, next) {
-  res.send('질문과 답변에 필요 정보 및 하위 기능: 질문하기');
-})
 module.exports = router;
