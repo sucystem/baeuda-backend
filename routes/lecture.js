@@ -3,11 +3,14 @@ var router = express.Router();
 var db = require('../modules/db');
 var sql = require('../sql');
 var helper = require('../modules/helper');
+var tokenUser = require('../modules/user');
+
+router.use(tokenUser.tokenToUser);
 
 router.get('/', async function(req, res, next) {
-  const { id } = req.user._user[0];
+  const { id } = req.user._user;
   try{
-    const [rows] = await db.query(sql.lecture.selectLecturesByUserId, [id])
+    const [rows] = await db.query(sql.lecture.selectLecturesByStudentUserId, [id])
     if (rows.length == 0) {
       res.status(200).send({
         result: 'true',
@@ -47,8 +50,18 @@ router.get('/all', async function(req, res){
   }
 });
 
+router.get('/:lecture_id/lecture', async function(req, res){
+  const { id } = req.user._user;
+  const { lecture_id } = req.params;
+  try{
+
+  } catch(e) {
+    helper.failedConnectionServer(res,e);
+  }
+});
+
 router.post('/:lecture_id/register', async function(req, res){
-  const { id } = req.user._user[0];
+  const { id } = req.user._user;
   const { lecture_id } = req.params;
 
   try{
