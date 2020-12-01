@@ -3,5 +3,6 @@ module.exports = {
     lecture: require('./lecture'),
     community: require('./community'),
     board: require('./board'),
-    schedule: require('./schedule')
+    schedule: require('./schedule'),
+    chat: require('./chat')
 }
