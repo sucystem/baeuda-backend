@@ -363,4 +363,81 @@ router.get('/complete', async function (req, res) {
   }
 });
 
+router.post('/add', async function (req, res){
+  const { id } = req.user._user;
+  const {lecture_id} = req.params;
+  const {name, comment, max_student} = req.body;
+
+  try{
+    let [rows] = await db.query(sql.lecture.selectLectureByProf, [lecture_id, id]);
+    if (rows.length == 0) {
+      res.send({
+        result: "false",
+        msg: "권한이 없습니다."
+      });
+    } else {
+      [rows] = await db.query(sql.lecture.insertLecture, [name, comment, max_student, id]);
+
+      for(var i=1; i<=10; i++){
+        await db.query(sql.lecture.insertLessonsByLectureId, [rows[0].id, i]);
+      }
+
+      res.send({
+        result: "true",
+        data: rows,
+        msg: "강의가 생성되었습니다."
+      })
+    }
+  }catch(e){
+    helper.failedConnectionServer(res, e);
+  }
+})
+
+router.post('/update/:lecture_id', async function (req, res){
+  const { id } = req.user._user;
+  const {lecture_id} = req.params;
+  const {name, comment, max_student} = req.body;
+
+  try{
+    let [rows] = await db.query(sql.lecture.selectLectureByProf, [lecture_id, id]);
+    if (rows.length == 0) {
+      res.send({
+        result: "false",
+        msg: "권한이 없습니다."
+      });
+    } else {
+      [rows] = await db.query(sql.lecture.updateLectureByLectureId, [name, comment, max_student, lecture_id]);
+      res.status(200).send({
+        result: "true",
+        data: rows,
+        msg: "강좌정보가 수정되었습니다."
+      })
+    }
+  } catch(e){
+    helper.failedConnectionServer(res, e);
+  }
+})
+
+router.post('/delete/:lecture_id', async function (req, res){
+  const { id } = req.user._user;
+  const {lecture_id} = req.params;
+
+  try{
+    let [rows] = await db.query(sql.lecture.selectLectureByProf, [lecture_id, id]);
+    if (rows.length == 0) {
+      res.send({
+        result: "false",
+        msg: "권한이 없습니다."
+      });
+    } else {
+      await db.query(sql.lecture.deleteLectureByLectureId, [lecture_id]);
+      res.send({
+        result: "true",
+        msg: "강좌가 삭제되었습니다."
+      })
+    }
+  } catch(e){
+    helper.failedConnectionServer(res, e);
+  }
+})
 module.exports = router;
