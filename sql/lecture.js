@@ -1,6 +1,7 @@
 module.exports = {
     selectLectureById: "SELECT * FROM baeuda.lecture WHERE id=?",
     selectLecturesByProfessorId: "SELECT * FROM baeuda.lecture WHERE prof=?",
+    selectLectureByProf: "SELECT * FROM baeuda.lecture WHERE id=? AND prof=?",
     selectLecturesByStudentUserId: `SELECT l.id, l.name, l.prof, u.user_name, l.cur_student, l.max_student, s.grade FROM baeuda.lecture as l 
                                     join lecture_student as s on l.id = s.lecture_id 
                                     join user as u on u.id = l.prof where s.student_id=? AND s.state=?`,

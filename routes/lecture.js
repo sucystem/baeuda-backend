@@ -245,9 +245,9 @@ router.post('/registcancel', async function (req, res) {
   const { id } = req.user._user;
   const { lecture_id } = req.body;
 
-  try{
+  try {
     let [rows] = await db.query(sql.lecture.selectLectureByLectureIdAndUserId, [lecture_id, id]);
-    if(rows.length == 0) {
+    if (rows.length == 0) {
       res.status(200).send({
         result: "false",
         data: [],
@@ -267,13 +267,13 @@ router.post('/registcancel', async function (req, res) {
         msg: "취소되었습니다."
       })
     }
-  } catch(e) {
+  } catch (e) {
     helper.failedConnectionServer(res, e);
   }
 });
 
 router.get('/accept/:lecture_id', async function (req, res) {
-  const { id } = req.user._user[0];
+  const { id } = req.user._user;
   const { lecture_id } = req.params;
 
   try {
@@ -300,7 +300,7 @@ router.get('/accept/:lecture_id', async function (req, res) {
 router.post('/accept/:lecture_id', async function (req, res) {
   const { id } = req.user._user;
   const { lecture_id } = req.params;
-  const { studentId } = req.body;
+  const { option, studentId } = req.body;
 
   try {
     let [rows] = await db.query(sql.lecture.selectLectureByProf, [lecture_id, id]);
@@ -309,20 +309,29 @@ router.post('/accept/:lecture_id', async function (req, res) {
         msg: "권한이 없습니다."
       });
     } else {
-      [rows] = await db.query(sql.selectRequestStudentByUserId, [lecture_id, studentId]);
+      [rows] = await db.query(sql.lecture.selectRequestStudentByUserId, [lecture_id, studentId]);
       if (rows.length == 0) {
         res.send({
           msg: "신청한 학생이 아닙니다."
         });
       } else {
-        await db.query(sql.lecture.updateAcceptStudentByUserId, [lecture_id, studentId]);
-        [rows] = await db.query(sql.selectLessonsByLectureId, [lecture_id]);
-        rows.map(async row => {
-          await db.query(sql.lecture.insertLessonsByLectureIdAndUserId, [row.id, studentId]);
-        })
-        res.send({
-          msg: "승인되었습니다."
-        });
+        if (option === 'accept') {
+          await db.query(sql.lecture.updateAcceptStudentByUserId, [lecture_id, studentId]);
+          [rows] = await db.query(sql.lecture.selectLessonsByLectureId, [lecture_id]);
+          rows.map(async row => {
+            await db.query(sql.lecture.insertLessonsByLectureIdAndUserId, [row.id, studentId]);
+          })
+          res.send({
+            msg: "승인되었습니다."
+          });
+        } else if (option === 'cancel') {
+          await db.query(sql.lecture.deleteRegistLectureByLectureIdAndUserId, [lecture_id, studentId, 0]);
+          res.status(200).send({
+            result: "true",
+            data: [],
+            msg: "취소되었습니다."
+          })
+        }
       }
     }
   } catch (e) {
@@ -330,10 +339,10 @@ router.post('/accept/:lecture_id', async function (req, res) {
   }
 });
 
-router.get('/complete', async function(req, res) {
+router.get('/complete', async function (req, res) {
   const { id } = req.user._user;
-  
-  try{
+
+  try {
     const [rows] = await db.query(sql.lecture.selectLecturesByStudentUserId, [id, 2]);
     if (rows.length == 0) {
       res.status(200).send({
