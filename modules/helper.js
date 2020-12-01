@@ -3,7 +3,7 @@ module.exports = {
             res.status(200).send({
                 result : 'failed',
                 data : [],
-                message: `Request server failed. Error : ${error}`      
+                msg: `Request server failed. Error : ${error}`      
         })
     }
 }

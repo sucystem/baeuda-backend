@@ -3,6 +3,7 @@ var express = require('express');
 var session = require('express-session');
 var path = require('path');
 var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
@@ -12,10 +13,11 @@ var projectRouter = require('./routes/project');
 var studyRouter = require('./routes/study');
 var communityRouter = require('./routes/community');
 var boardRouter = require('./routes/board');
-var scheduleRouter = require('./routes/schedule')
+var scheduleRouter = require('./routes/schedule');
+var chatRouter = require('./routes/chat');
 //var mysqlRouter = require('./routes/mysql');
 
-const cors = require('cors');
+var cors = require('cors');
 
 var app = express();
 app.use(cors());
@@ -24,6 +26,7 @@ app.use(cors());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+app.use(bodyParser.json());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -40,7 +43,7 @@ createSession = () =>  {
 	};
 };
 app.use(session({
-	secret: '1234DSFs@adf1234!@#$asd',
+	secret: 'dontyouproject',
 	resave: false,
 	saveUninitialized: true,
 	cookie: { maxAge: 600000 },
@@ -55,6 +58,7 @@ app.use('/study', studyRouter);
 app.use('/community', communityRouter);
 app.use('/board', boardRouter);
 app.use('/schedule', scheduleRouter);
+app.use('/chat', chatRouter);
 //app.use('/mysql', mysqlRouter);
 
 // catch 404 and forward to error handler

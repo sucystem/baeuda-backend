@@ -5,5 +5,6 @@ module.exports = {
     board: require('./board'),
     schedule: require('./schedule'),
     study : require('./study'),
-    project : require('./project')
+    project : require('./project'),
+    chat: require('./chat')
 }
