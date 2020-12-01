@@ -13,7 +13,7 @@ router.get('/', async function (req, res, next) {
     const [rows] = await db.query(sql.lecture.selectLecturesByStudentUserId, [id, 1])
     if (rows.length == 0) {
       res.status(200).send({
-        result: 'true',
+        result: 'false',
         data: [],
         msg: '수강중인 강좌가 없습니다.'
       })
@@ -29,12 +29,34 @@ router.get('/', async function (req, res, next) {
   }
 });
 
+router.get('/manage', async function (req, res, next) {
+  const { id } = req.user._user;
+  try {
+    const [rows] = await db.query(sql.lecture.selectLecturesByProfessorId, [id])
+    if (rows.length == 0) {
+      res.status(200).send({
+        result: 'false',
+        data: [],
+        msg: '관리할 강의가 없습니다.'
+      })
+    } else {
+      res.status(200).send({
+        result: 'true',
+        data: rows,
+        msg: '관리할 강의 조회에 성공했습니다.'
+      })
+    }
+  } catch (e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
+
 router.get('/all', async function (req, res) {
   try {
     const [rows] = await db.query(sql.lecture.selectLecturesByUserId, [id])
     if (rows.length == 0) {
       res.status(200).send({
-        result: 'true',
+        result: 'false',
         data: [],
         msg: '강좌가 없습니다.'
       })
