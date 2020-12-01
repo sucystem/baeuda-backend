@@ -50,11 +50,17 @@ router.get('/all', async function(req, res){
   }
 });
 
-router.get('/:lecture_id/lecture', async function(req, res){
+router.get('/:lecture_id/info', async function(req, res){
   const { id } = req.user._user;
   const { lecture_id } = req.params;
   try{
+    const [rows] = await db.query(sql.lecture.selectLectureById, [lecture_id]);
 
+    res.status(200).send({
+      result: "true",
+      data: rows[0],
+      msg: "강의 정보를 불러왔습니다."
+    })
   } catch(e) {
     helper.failedConnectionServer(res,e);
   }
