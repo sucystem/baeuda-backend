@@ -50,7 +50,7 @@ router.get('/all', async function(req, res){
   }
 });
 
-router.get('/:lecture_id/info', async function(req, res){
+router.get('/info/:lecture_id', async function(req, res){
   const { id } = req.user._user;
   const { lecture_id } = req.params;
   try{
@@ -66,7 +66,7 @@ router.get('/:lecture_id/info', async function(req, res){
   }
 });
 
-router.get('/:lecture_id/lessons', async function(req, res){
+router.get('/lessons/:lecture_id', async function(req, res){
   const { id } = req.user._user;
   const { lecture_id } = req.params;
   try{
@@ -79,6 +79,54 @@ router.get('/:lecture_id/lessons', async function(req, res){
     })
   } catch(e) {
     helper.failedConnectionServer(res,e);
+  }
+});
+
+router.get('/room/notices/:lecture_id', async function(req, res){
+  const { id } = req.user._user;
+  const { lecture_id } = req.params;
+  try{
+    const [rows] = await db.query(sql.lecture.selectNoticesByLectureId, [lecture_id]);
+
+    res.status(200).send({
+      result: "true",
+      data: rows,
+      msg: "공지사항을 불러왔습니다"
+    })
+  }catch(e){
+    helper.failedConnectionServer(res, e);
+  }
+});
+
+router.get('/room/qnas/:lecture_id', async function(req, res){
+  const { id } = req.user._user;
+  const { lecture_id } = req.params;
+  try{
+    const [rows] = await db.query(sql.lecture.selectQnAsByLectureId, [lecture_id]);
+
+    res.status(200).send({
+      result: "true",
+      data: rows,
+      msg: "QnA를 불러왔습니다"
+    })
+  }catch(e){
+    helper.failedConnectionServer(res, e);
+  }
+});
+
+router.get('/room/datas/:lecture_id', async function(req, res){
+  const { id } = req.user._user;
+  const { lecture_id } = req.params;
+  try{
+    const [rows] = await db.query(sql.lecture.selectDatasByLectureId, [lecture_id]);
+
+    res.status(200).send({
+      result: "true",
+      data: rows,
+      msg: "학습자료를 불러왔습니다"
+    })
+  }catch(e){
+    helper.failedConnectionServer(res, e);
   }
 });
 

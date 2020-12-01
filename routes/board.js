@@ -35,6 +35,23 @@ router.get('/:board_id', async function (req, res) {
     }
 });
 
+router.post('/post/:post_id', async function (req, res){
+    const { id } = req.user._user;
+    const { post_id } = req.params;
+    try{
+            await db.query(sql.board.increaseCountByPostId, [post_id]);
+            const [post] = await db.query(sql.board.selectPostByPostId, [post_id]);
+            const [comments] = await db.query(sql.board.selectCommentsByPostId, [post_id]);
+            res.status(200).send({
+                result: 'true',
+                data: { post, comments },
+                msg: "게시글 읽기 성공"
+            })
+    } catch(e) {
+        helper.failedConnectionServer(res.e);
+    }
+})
+
 router.get('/:board_id/post/:post_id', async function (req, res) {
     const { id } = req.user._user;
     const { board_id, post_id } = req.params;
