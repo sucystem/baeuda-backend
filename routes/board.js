@@ -59,6 +59,30 @@ router.post('/delete/post', async function(req, res){
     }
 })
 
+router.post('/delete/comment', async function(req, res){
+    const { id } = req.user._user;
+    const { commentId } = req.body;
+    try{
+        let [rows] = await db.query(sql.board.selectCommentByCommentIdAndUserId, [commentId, id]);
+        if (rows.length == 0) {
+            res.send({
+                result: 'false',
+                data: [],
+                msg: "권한이 없습니다."
+            })
+        } else {
+            [rows] = await db.query(sql.board.deleteCommentByCommentId, [commentId]);
+            res.send({
+                result: 'true',
+                data: rows,
+                msg: "댓글을 삭제했습니다."
+            });
+        }
+    } catch(e) {
+        helper.failedConnectionServer(res, e);
+    }
+})
+
 router.post('/post/:post_id', async function (req, res){
     const { id } = req.user._user;
     const { post_id } = req.params;
@@ -101,7 +125,6 @@ router.get('/:board_id/post/:post_id', async function (req, res) {
             })
 
             await Promise.all(promise);
-            console.log(comments);
             res.status(200).send({
                 result: 'true',
                 data: { post, comments },
