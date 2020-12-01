@@ -103,6 +103,7 @@ router.get('/:board_id/:post_id/comments', async function (req, res) {
 });
 
 router.post('/:board_id/newPost', async function (req, res) {
+    console.log(req.body);
     const { id } = req.user._user;
     const { title, content } = req.body;
     const { board_id } = req.params;
