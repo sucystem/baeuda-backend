@@ -275,8 +275,32 @@ router.get('/:lecture_id/accept', async function (req, res) {
   }
 });
 
+router.get('/complete', async function(req, res) {
+  const { id } = req.user._user;
+  
+  try{
+    const [rows] = await db.query(sql.lecture.selectLecturesByStudentUserId, [id, 2]);
+    if (rows.length == 0) {
+      res.status(200).send({
+        result: "false",
+        data: [],
+        msg: "이수한 강의가 없습니다."
+      })
+    } else {
+      res.status(200).send({
+        result: "true",
+        data: rows,
+        msg: "이수한 강의 목록"
+      });
+    }
+
+  } catch (e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
+
 router.put('/:lecture_id/accept', async function (req, res) {
-  const { id } = req.user._user[0];
+  const { id } = req.user._user;
   const { lecture_id } = req.params;
   const { studentId } = req.body;
 
