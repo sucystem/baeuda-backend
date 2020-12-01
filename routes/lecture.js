@@ -318,7 +318,7 @@ router.post('/accept/:lecture_id', async function (req, res) {
         await db.query(sql.lecture.updateAcceptStudentByUserId, [lecture_id, studentId]);
         [rows] = await db.query(sql.selectLessonsByLectureId, [lecture_id]);
         rows.map(async row => {
-          await db.query(sql.lecture.insertLessonsByLectureIdAndUserId, [row.id, id]);
+          await db.query(sql.lecture.insertLessonsByLectureIdAndUserId, [row.id, studentId]);
         })
         res.send({
           msg: "승인되었습니다."
