@@ -1,5 +1,5 @@
 module.exports = {
-    selectPostByPostId: "SELECT p.id, p.title, p.content, p.writer, u.user_name, p.file, p.regDate, p.moDate, p.count FROM baeuda.user as u JOIN baeuda.post as p ON p.writer=u.id WHERE p.id=?",
+    selectPostByPostId: "SELECT p.id, p.board_id, p.title, p.content, p.writer, u.user_name, p.file, p.regDate, p.moDate, p.count FROM baeuda.user as u JOIN baeuda.post as p ON p.writer=u.id WHERE p.id=?",
     selectCommentsByPostId: "SELECT c.id, c.content, c.date, c.user_id, u.user_name FROM baeuda.user as u JOIN baeuda.comment as c ON c.user_id=u.id WHERE post_id=? ORDER BY c.date",
     selectPostsByBoardId: "SELECT p.id, p.title, p.content, p.writer, u.user_name, p.file, p.regDate, p.moDate, p.count FROM baeuda.user as u JOIN baeuda.post as p ON p.writer=u.id WHERE p.board_id=? ORDER BY p.id DESC Limit 15",
     checkReadLevelByUserId: "SELECT * FROM baeuda.board as b, baeuda.user as u WHERE u.level>=b.read_level AND b.id=? AND u.id=?",

@@ -89,7 +89,16 @@ router.post('/post/:post_id', async function (req, res){
     try{
             await db.query(sql.board.increaseCountByPostId, [post_id]);
             const [post] = await db.query(sql.board.selectPostByPostId, [post_id]);
-            const [comments] = await db.query(sql.board.selectCommentsByPostId, [post_id]);
+            const [comment] = await db.query(sql.board.selectCommentsByPostId, [post_id]);
+            var comments = []
+            const promise = comment.map(async row => {
+                if(row.user_id == id){
+                    row['delete'] = '[삭제]';
+                }
+                comments.push(row);
+            })
+
+            await Promise.all(promise);
             res.status(200).send({
                 result: 'true',
                 data: { post, comments },
