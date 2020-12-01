@@ -3,8 +3,10 @@ var express = require('express');
 var router = express.Router();
 const db = require('../modules/db');
 const helper = require('../modules/helper');
-const sql = require('../sql')
+const sql = require('../sql');
+var tokenUser = require('../modules/user');
 
+router.use(tokenUser.tokenToUser);
 
 router.get('/', function(req, res, next) {
   res.send('respond of study request');
@@ -18,59 +20,35 @@ router.get('/', function(req,res,next){
 router.get('/main',async  function(req, res, next){
   // 스터디 목록, 스터디 일정, 스터디 모집 세 페이지를 간략적으로 보여주는 메인 페이지.
   // 페이지에서  보여줄 정보: 스터디 목록의 제목들. 스터디 일정의 제목들과 올린 시간. 스터디 모집의 제목들과 사람 수.       id를 필요로 함.
-  res.send('respond of fronts: main page of each page. 3 Area.   1. 스터디 목록의 제목. 2. 스터디 일정들의 제목. 3. 스터디 모집의 제목.');
   // 필요 정보 1. 스터디 목록의 제목.   DB :  study
   // 필요 정보 2. 스터디 일정의 제목.   DB :  
   // 필요 정보 3. 스터디 모집의 제목.   DB :  board/post
 
-  var sql_studyList;
-  var sql_studyCalList;
-  var sql_studyRecList;
-  
-  const { id } = req.user._user[0];
+  const { id } = req.user._user;
   try{
     const [rows1] = await db.query(sql.study.selectIdNameStudyById, [id]);
-    const [rows2] = await db.query(sql.schedule.selectScheduleByDate, [id, curdate()]);
+    const [rows2] = await db.query(sql.schedule.selectWeekSchedules, [id]);
     const [rows3] = await db.query(sql.study.selectIdNameSeatStudyById, [id]);
     if (rows1.length == 0) {
-      res.status(200).send({
-        result: 'true',
-        data: [],
-        msg: '목록이 비었습니다.'
-      })
+        msg1 = '목록이 비었습니다.';
     } else {
-      res.status(200).send({
-        result: 'true',
-        data: rows1,
-        msg: '수강중인 강좌 조회에 성공했습니다.'
-      })
+        msg1 = '수강중인 강좌 조회에 성공했습니다.';
     }
     if (rows2.length == 0) {
-      res.status(200).send({
-        result: 'true',
-        data: [],
-        msg: '오늘은 스터디가 없어요!'
-      })
+        msg2 = '오늘은 스터디가 없어요!';
     } else {
-      res.status(200).send({
-        result: 'true',
-        data: rows2,
-        msg: '오늘의 스터디 목록입니다..'
-      })
+        msg2 = '오늘의 스터디 목록입니다..';
     }
     if (rows3.length == 0) {
-      res.status(200).send({
-        result: 'true',
-        data: [],
-        msg: '모집중인 스터디가 없습니다.'
-      })
+        msg3 = '모집중인 스터디가 없습니다.';
     } else {
-      res.status(200).send({
-        result: 'true',
-        data: rows3,
-        msg: '현재 모집중인 스터디 목록입니다.'
-      })
+        msg3 = '현재 모집중인 스터디 목록입니다.';
     }
+    res.status(200).send({
+      result : 'true',
+      data : {row1 : rows1, row2 : rows2, row3 : rows3},
+      msg : {row1 : msg1, row2 : msg2, row3 : msg3}
+    })
   } catch(e) {
     helper.failedConnectionServer(res, e);
   }
@@ -81,9 +59,7 @@ router.get('/main',async  function(req, res, next){
 router.get('/showList',async  function(req,res,next){
   // 탭으로 들어온 스터디 목록 페이지.
   // 페이지에서 보여줄 정보: 스터디 제목. 스터디 인수. 
-  res.send('respond of fronts: joined project Lists ');
-  var sql;
-  const { id } = req.user._user[0];
+  const { id } = req.user._user;
 
   try{
     const [rows] = await db.query(sql.study.selectIdNameSeatStudyById, [id]);
@@ -98,7 +74,7 @@ router.get('/showList',async  function(req,res,next){
       res.status(200).send({
         result: 'true',
         data: rows,
-        msg: '수강중인 스터디 조회 성골.'
+        msg: '수강중인 스터디 조회 성공.'
       })
     }
   }catch(e){
