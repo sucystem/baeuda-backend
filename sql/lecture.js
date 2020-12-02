@@ -63,5 +63,8 @@ module.exports = {
     selectChatRoomByLectureId: `SELECT * FROM baeuda.chat_room WHERE lecture_id=?`,
     insertChatRoomByLectureId: `INSERT INTO baeuda.chat_room (name, lecture_id) VALUES (?, ?)`,
 
-    selectAssignmentsByLectureId: `SELECT * FROM baeuda.lecture_assignment WHERE lecture_id=?`
+    selectAssignmentsByLectureId: `SELECT * FROM baeuda.lecture_assignment WHERE lecture_id=?`,
+    selectAssignmentById: `SELECT * FROM baeuda.lecture_assignment WHERE id=?`,
+    selectFilesByAssignmentId: `SELECT * FROM baeuda.file WHERE assignment_id=?`,
+    deleteAssignmentById: `DELETE FROM baeuda.lecture_assignment WHERE id=?`
 };

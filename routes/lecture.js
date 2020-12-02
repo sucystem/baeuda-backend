@@ -319,6 +319,38 @@ router.get('/assignment/:lecture_id', async function(req, res){
   }
 })
 
+router.get('/assignment/post/:assignment_id', async function(req, res){
+  const { id } = req.user._user;
+  const { assignment_id } = req.params;
+
+  try{
+    const [post] = await db.query(sql.lecture.selectAssignmentById, [assignment_id]);
+    const [files] = await db.query(sql.lecture.selectFilesByAssignmentId, [assignment_id]);
+    res.status(200).send({
+      result: 'true',
+      data: {post, files},
+      msg: "과제를 불러왔습니다."
+    })
+  }catch(e){
+    helper.failedConnectionServer(res, e);
+  }
+});
+
+router.post('/assignment/delete', async function(req, res){
+  const { id } = req.user._user;
+  const { assignment_id } = req.body;
+
+  try{
+    await db.query(sql.lecture.deleteAssignmentById, [assignment_id]);
+    res.status(200).send({
+      result: 'true',
+      msg: "과제를 삭제했습니다."
+    })
+  }catch(e){
+    helper.failedConnectionServer(res,e);
+  }
+})
+
 router.post('/accept/:lecture_id', async function (req, res) {
   const { id } = req.user._user;
   const { lecture_id } = req.params;
