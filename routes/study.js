@@ -331,4 +331,50 @@ router.post('/apply/:studyId', async function(req, res){
   }
 });
 
+router.get('/schedule/:studyId', async function(req, res){
+  const { id } = req.user._user;
+  const { studyId } = req.params;
+
+  try {
+    const [rows] = await db.query(sql.schedule.selectScheduleByStudyId, [studyId]);
+    if(rows.length == 0){
+      res.status(200).send({
+        result: "false",
+        msg: "스터디에 스케쥴이 없습니다."
+      })
+    } else {
+      res.status(200).send({
+        result: "true",
+        data: rows,
+        msg: "스터디의 스케쥴을 불러왔습니다."
+      })
+    }
+  } catch (e) {
+    helper.failedConnectionServer(res, e);
+  }
+})
+
+router.post('/schedule/:studyId', async function(req, res){
+  const { id } = req.user._user;
+  const { studyId } = req.params;
+
+  try {
+    const [rows] = await db.query(sql.schedule.selectScheduleByStudyId, [studyId]);
+    if(rows.length == 0){
+      res.status(200).send({
+        result: "false",
+        msg: "스터디에 스케쥴이 없습니다."
+      })
+    } else {
+      res.status(200).send({
+        result: "true",
+        data: rows,
+        msg: "스터디의 스케쥴을 불러왔습니다."
+      })
+    }
+  } catch (e) {
+    helper.failedConnectionServer(res, e);
+  }
+})
+
 module.exports = router;
