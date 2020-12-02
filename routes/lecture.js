@@ -285,10 +285,12 @@ router.get('/accept/:lecture_id', async function (req, res) {
         msg: "권한이 없습니다."
       })
     } else {
-      [rows] = await db.query(sql.lecture.selectListRequestStudentsByLectureId, [lecture_id]);
+      [accepts] = await db.query(sql.lecture.selectStudentsByLectureId, [lecture_id, 0]);
+      [students] = await db.query(sql.lecture.selectStudentsByLectureId, [lecture_id, 1]);
+      [grades] = await db.query(sql.lecture.selectStudentsByLectureId, [lecture_id, 2]);
       res.status(200).send({
         result: 'true',
-        data: rows,
+        data: { accepts, students, grades, rows },
         msg: '해당 강좌 신청 학생 목록을 조회했습니다.'
       })
     }
@@ -308,6 +310,11 @@ router.post('/accept/:lecture_id', async function (req, res) {
       res.send({
         msg: "권한이 없습니다."
       });
+    } else if (rows[0].cur_student >= rows[0].max_student) {
+      res.send({
+        result: "false",
+        msg: "정원이 가득 찼습니다."
+      });
     } else {
       [rows] = await db.query(sql.lecture.selectRequestStudentByUserId, [lecture_id, studentId]);
       if (rows.length == 0) {
@@ -317,6 +324,7 @@ router.post('/accept/:lecture_id', async function (req, res) {
       } else {
         if (option === 'accept') {
           await db.query(sql.lecture.updateAcceptStudentByUserId, [lecture_id, studentId]);
+          await db.query(sql.lecture.updateCurStudentByLectureId, [lecture_id]);
           [rows] = await db.query(sql.lecture.selectLessonsByLectureId, [lecture_id]);
           rows.map(async row => {
             await db.query(sql.lecture.insertLessonsByLectureIdAndUserId, [row.id, studentId]);
@@ -330,9 +338,34 @@ router.post('/accept/:lecture_id', async function (req, res) {
             result: "true",
             data: [],
             msg: "취소되었습니다."
-          })
+          })          
         }
       }
+    }
+  } catch (e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
+
+router.post('/graduate/:lecture_id', async function (req, res) {
+  const { id } = req.user._user;
+  const { lecture_id } = req.params;
+  const { grade, option, studentId } = req.body;
+
+  try {
+    let [rows] = await db.query(sql.lecture.selectLectureByProf, [lecture_id, id]);
+    if (rows.length == 0) {
+      res.send({
+        msg: "권한이 없습니다."
+      });
+    } else {
+      await db.query(sql.lecture.updateGraduateStudentByUserId, [grade, lecture_id, studentId]);
+      await db.query(sql.lecture.minusCurStudentByLectureId, [lecture_id]);
+      res.status(200).send({
+        result: "true",
+        data: [],
+        msg: "이수처리 되었습니다."
+      });
     }
   } catch (e) {
     helper.failedConnectionServer(res, e);
@@ -379,8 +412,10 @@ router.post('/add', async function (req, res){
       let [Data] = await db.query(sql.board.insertBoard, ['Data', name, 0, 1, 'lecture']);
       let [QnA] = await db.query(sql.board.insertBoard, ['QnA', name, 0, 0, 'lecture']);
       [rows] = await db.query(sql.lecture.insertLecture, [name, comment, max_student, id, Notice.insertId, Data.insertId, QnA.insertId]);
+      await db.query(sql.lecture.insertProfLecture, [rows.insertId, id]);
       for(var i=1; i<=10; i++){
-        await db.query(sql.lecture.insertLessonsByLectureId, [rows.insertId, (i+"강")]);
+        let [lesson] = await db.query(sql.lecture.insertLessonsByLectureId, [rows.insertId, (i+"강")]);
+        await db.query(sql.lecture.insertLessonsByLectureIdAndUserId, [lesson.insertId, id]);
       }
 
       res.send({

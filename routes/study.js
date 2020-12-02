@@ -17,6 +17,79 @@ router.get('/', function(req, res, next) {
 router.get('/', function(req,res,next){
   res.send('탭에 필요한 정보 및 하위 기능: ');
 });
+
+router.get('/info/:studyId', async function(req, res){
+  const { id } = req.user._user;
+  const { studyId } = req.params;
+
+  try{
+    const [rows] = await db.query(sql.study.selectStudyById, [studyId]);
+    if(rows.length == 0){
+      res.status(200).send({
+        result: "false",
+        data: [],
+        msg: "존재하지 않는 스터디입니다."
+      });
+    } else {
+      res.status(200).send({
+        result: "true",
+        data: rows,
+        msg: "스터디 정보를 조회했습니다."
+      })
+    }
+  } catch(e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
+
+router.get('/reference/:studyId', async function(req, res){
+  const { id } = req.user._user;
+  const { studyId } = req.params;
+
+  try{
+    const [rows] = await db.query(sql.study.selectStudyById, [studyId]);
+    if(rows.length == 0){
+      res.status(200).send({
+        result: "false",
+        data: [],
+        msg: "존재하지 않는 스터디입니다."
+      });
+    } else {
+      res.status(200).send({
+        result: "true",
+        data: rows,
+        msg: "스터디 자료를 조회했습니다."
+      })
+    }
+  }catch(e){
+    helper.failedConnectionServer(res, e);
+  }
+})
+
+router.get('/schedule/:studyId', async function(req, res){
+  const { id } = req.user._user;
+  const { studyId } = req.params;
+
+  try{
+    const [rows] = await db.query(sql.study.selectStudyById, [studyId]);
+    if(rows.length == 0){
+      res.status(200).send({
+        result: "false",
+        data: [],
+        msg: "존재하지 않는 스터디입니다."
+      });
+    } else {
+      res.status(200).send({
+        result: "true",
+        data: rows,
+        msg: "스터디 일정을 조회했습니다."
+      })
+    }
+  }catch(e){
+    helper.failedConnectionServer(res, e);
+  }
+})
+
 router.get('/main',async  function(req, res, next){
   // 스터디 목록, 스터디 일정, 스터디 모집 세 페이지를 간략적으로 보여주는 메인 페이지.
   // 페이지에서  보여줄 정보: 스터디 목록의 제목들. 스터디 일정의 제목들과 올린 시간. 스터디 모집의 제목들과 사람 수.       id를 필요로 함.
@@ -26,9 +99,9 @@ router.get('/main',async  function(req, res, next){
 
   const { id } = req.user._user;
   try{
-    const [rows1] = await db.query(sql.study.selectIdNameStudyById, [id]);
+    const [rows1] = await db.query(sql.study.selectStudyByUserId, [id]);
     const [rows2] = await db.query(sql.schedule.selectWeekSchedules, [id]);
-    const [rows3] = await db.query(sql.study.selectIdNameSeatStudyById, [id]);
+    const [rows3] = await db.query(sql.study.selectStudyWithRecuit);
     if (rows1.length == 0) {
         msg1 = '목록이 비었습니다.';
     } else {
@@ -62,11 +135,11 @@ router.get('/showList',async  function(req,res,next){
   const { id } = req.user._user;
 
   try{
-    const [rows] = await db.query(sql.study.selectIdNameSeatStudyById, [id]);
+    const [rows] = await db.query(sql.study.selectStudyByUserId, [id]);
 
     if (rows.length == 0){
         res.status(200).send({
-          result: 'true',
+          result: 'false',
           data: [],
           msg: '현재 스터디가 없습니다.'
         })
@@ -122,9 +195,19 @@ router.get('/Calender',async  function(req,res,next){
 
 
 // 스터디 페이지 3: 스터디 모집
-router.get('/Recruit/',async function(req,res,next){
-  // 탭으로 들어오면 바로 1페이지로 이동.
-  res.redirect('/study/Recruit/1');
+router.get('/recruit',async function(req,res,next){
+  const { id } = req.user._user;
+
+  try{
+    const [rows] = await db.query(sql.study.selectStudyWithRecuit);
+    res.status(200).send({
+      result: "true", 
+      data: rows,
+      msg: '모집중인 스터디 목록 조회 성공'
+    })
+  } catch(e) {
+    helper.failedConnectionServer(res, e);
+  }
 });
 
 router.get('/Recruit/:page',async  function(req,res,next){
