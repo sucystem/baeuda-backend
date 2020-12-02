@@ -66,30 +66,6 @@ router.get('/reference/:studyId', async function(req, res){
   }
 })
 
-router.get('/schedule/:studyId', async function(req, res){
-  const { id } = req.user._user;
-  const { studyId } = req.params;
-
-  try{
-    const [rows] = await db.query(sql.study.selectStudyById, [studyId]);
-    if(rows.length == 0){
-      res.status(200).send({
-        result: "false",
-        data: [],
-        msg: "존재하지 않는 스터디입니다."
-      });
-    } else {
-      res.status(200).send({
-        result: "true",
-        data: rows,
-        msg: "스터디 일정을 조회했습니다."
-      })
-    }
-  }catch(e){
-    helper.failedConnectionServer(res, e);
-  }
-})
-
 router.get('/main',async  function(req, res, next){
   // 스터디 목록, 스터디 일정, 스터디 모집 세 페이지를 간략적으로 보여주는 메인 페이지.
   // 페이지에서  보여줄 정보: 스터디 목록의 제목들. 스터디 일정의 제목들과 올린 시간. 스터디 모집의 제목들과 사람 수.       id를 필요로 함.
