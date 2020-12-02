@@ -5,6 +5,7 @@ var db = require('../modules/db')
 var helper = require('../modules/helper')
 var tokenUser = require('../modules/user');
 const fileUpload = require('express-fileupload')
+var crypto = require('crypto');
 
 router.use(tokenUser.tokenToUser);
 router.use(fileUpload());
@@ -126,6 +127,7 @@ router.get('/:board_id/post/:post_id', async function (req, res) {
             await db.query(sql.board.increaseCountByPostId, [post_id]);
             const [post] = await db.query(sql.board.selectPostByPostId, [post_id]);
             let [comment] = await db.query(sql.board.selectCommentsByPostId, [post_id]);
+            let [files] = await db.query(sql.board.selectFilesByPostId, [post_id]);
             
             var comments = []
             const promise = comment.map(async row => {
@@ -138,7 +140,7 @@ router.get('/:board_id/post/:post_id', async function (req, res) {
             await Promise.all(promise);
             res.status(200).send({
                 result: 'true',
-                data: { post, comments },
+                data: { post, comments, files },
                 msg: "게시글 읽기 성공"
             })
         }
@@ -183,14 +185,16 @@ router.get('/:board_id/:post_id/comments', async function (req, res) {
 });
 
 router.post('/:board_id/newPost', async function (req, res) {
-    console.log(req.body);
     const { id } = req.user._user;
-    const { title, content, inputFile} = req.body;
-//    let  filess=req.files.inputFile;
+    const { title, content } = req.body;
+    var { file } = req.files || null;
     const { board_id } = req.params;
-    console.log(inputFile);
+    var time = new Date();
 
     try {
+        if(!file.length){
+            file = [file];
+        }
         let [rows] = await db.query(sql.board.checkWriteLevelByUserId, [board_id, id]);
         if (rows.length == 0) {
             res.send({
@@ -198,13 +202,22 @@ router.post('/:board_id/newPost', async function (req, res) {
                 msg: "권한이 없습니다."
             })
         } else {
-            [rows] = await db.query(sql.board.insertPost, [board_id, title, content, id, inputFile]);
+            [rows] = await db.query(sql.board.insertPost, [board_id, title, content, id, file.length]);
+            
+            const promise = file.map((file) => {
+                var name = crypto.createHash('sha256').update(file.name + time).digest('base64');
+                name = name.replace(/\//gi, '++');
+                file.mv(`./files/'${name}'`);
+                db.query(sql.board.insertFile, [file.name, name, rows.insertId]);
+            })
+
+            await Promise.all(promise);
+            
             res.status(200).send({
                 result: "true",
                 postid: rows.insertId,
                 msg: "게시글 등록에 성공했습니다."
             });
-
         }
     } catch (e) {
         helper.failedConnectionServer(res, e);
@@ -215,6 +228,7 @@ router.post('/:board_id/:post_id/addcomment', async function (req, res) {
     const { id } = req.user._user;
     const { comment } = req.body;
     const { board_id, post_id } = req.params;
+    
     try {
         let [rows] = await db.query(sql.board.checkReadLevelByUserId, [board_id, id]);
         if (rows.length == 0) {

@@ -13,5 +13,7 @@ module.exports = {
     selectCommentByCommentIdAndUserId: `SELECT * FROM baeuda.comment WHERE id=? AND user_id=?`,
     deleteCommentByCommentId: "DELETE FROM baeuda.comment WHERE id=?",
 
-    insertBoard: `INSERT INTO baeuda.board (name, comment, read_level, write_level, level) VALUES (?, ?, ?, ?, ?)`
+    insertBoard: `INSERT INTO baeuda.board (name, comment, read_level, write_level, level) VALUES (?, ?, ?, ?, ?)`,
+    insertFile: `INSERT INTO baeuda.file (name, path, post_id) VALUES (?, ?, ?)`,
+    selectFilesByPostId: `SELECT * FROM baeuda.file WHERE post_id=?`
 }

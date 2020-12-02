@@ -287,8 +287,6 @@ router.post('/delete',async  function(req,res,next){
   }
 });
 
-
-
 router.get('/post/:post_id', async function(req, res){
   const { post_id } = req.params;
   try{
@@ -300,6 +298,35 @@ router.get('/post/:post_id', async function(req, res){
       msg: "게시글 읽기 성공"
     })
   } catch(e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
+
+router.post('/apply/:studyId', async function(req, res){
+  const { id } = req.user._user;
+  const { studyId } = req.params;
+
+  try {
+    let [rows] = await db.query(sql.study.selectStudyById, [studyId]);
+    if (rows.length == 0) {
+      res.status(200).send({
+        msg: '존재하지 않는 강좌입니다.'
+      });
+    }
+    else {
+      [rows] = await db.query(sql.study.selectStudyByStudyIdAndUserId, [studyId, id]);
+      if (rows.length != 0) {
+        res.status(200).send({
+          msg: '이미 신청한 강좌입니다.'
+        })
+      } else {
+        await db.query(sql.study.insertUserStudy, [studyId, id]);
+        res.status(200).send({
+          msg: '신청되었습니다.'
+        });
+      }
+    }
+  } catch (e) {
     helper.failedConnectionServer(res, e);
   }
 });

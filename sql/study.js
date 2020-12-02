@@ -12,5 +12,8 @@ module.exports = {
                           ON study.id=student.study_id
                           WHERE student.student_id=?`,
     selectStudyWithRecuit: `SELECT * FROM baeuda.study WHERE state=0`,
-    selectStudyById: `SELECT * FROM baeuda.study WHERE id=?`
+    selectStudyById: `SELECT * FROM baeuda.study WHERE id=?`,
+    
+    insertUserStudy: `INSERT INTO baeuda.study_student (study_id, student_id) VALUES (?, ?)`,
+    selectStudyByStudyIdAndUserId: `SELECT * FROM baeuda.study_student WHERE study_id=? AND student_id=?`,
 }
