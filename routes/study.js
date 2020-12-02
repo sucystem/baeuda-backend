@@ -491,7 +491,7 @@ router.post('/out/:study_id', async function (req, res) {
         msg: "권한이 없습니다."
       });
     } else {
-      await db.query(sql.study.deleteStudentByStudyIdAndUserId, [study_id, student_id, 1]);
+      await db.query(sql.study.deleteRegistStudyByStudyIdAndUserId, [study_id, student_id, 1]);
       res.status(200).send({
         result: "true",
         data: [],
