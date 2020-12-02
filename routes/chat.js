@@ -10,8 +10,8 @@ router.use(tokenUser.tokenToUser);
 router.get('/', async function (req, res) {
     const { id } = req.user._user;
     try {
-        var [rows] = await db.query(sql.chat.selectChatRoomByUserId, [id, id]);
-        const data = [];
+        var [rows] = await db.query(sql.chat.selectChatRoomByUserId, [id]);
+        /*const data = [];
         const promise = rows.map(async row => {
             var person = row.member2;
             if(row.member2 == id) person = row.member1;
@@ -22,10 +22,10 @@ router.get('/', async function (req, res) {
                 receiver: user[0].user_name
             })
         })
-        await Promise.all(promise);
+        await Promise.all(promise);*/
         res.status(200).send({
             result: "true",
-            data: data,
+            data: rows,
             msg: "채팅방 목록"
         });
     } catch (e) {

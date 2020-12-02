@@ -52,19 +52,19 @@ router.get('/reference/:studyId', async function(req, res){
 
   try{
     const [rows] = await db.query(sql.study.selectFilesByStudyId, [studyId]);
-    if(rows.length == 0){
+    /*if(rows.length == 0){
       res.status(200).send({
         result: "false",
         data: [],
         msg: "존재하지 않는 스터디입니다."
       });
-    } else {
+    } else {*/
       res.status(200).send({
         result: "true",
         data: rows,
         msg: "스터디 자료를 조회했습니다."
       })
-    }
+    //}
   }catch(e){
     helper.failedConnectionServer(res, e);
   }
@@ -313,6 +313,7 @@ router.post('/apply/:studyId', async function(req, res){
   const { studyId } = req.params;
 
   try {
+    console.log(studyId);
     let [rows] = await db.query(sql.study.selectStudyById, [studyId]);
     if (rows.length == 0) {
       res.status(200).send({
@@ -326,7 +327,7 @@ router.post('/apply/:studyId', async function(req, res){
           msg: '이미 신청한 스터디입니다.'
         })
       } else {
-        await db.query(sql.study.insertUserStudy, [studyId, id]);
+        await db.query(sql.study.insertUserStudy, [studyId, id, 0]);
         res.status(200).send({
           msg: '신청되었습니다.'
         });
@@ -360,6 +361,22 @@ router.get('/schedule/:studyId', async function(req, res){
   }
 })
 
+router.get('/study/member/:studyId', async function(req, res){
+  const { id } = req.user._user;
+  const { studyId } = req.params;
+
+  try{
+    const [rows] = await db.query(sql.study.selectMembersByStudyId, [studyId]);
+    res.status(200).send({
+      result: "true",
+      data: rows,
+      msg: "팀원 목록을 불러왔습니다."
+    })
+  } catch(e){
+    helper.failedConnectionServer(res, e);
+  }
+})
+
 router.post('/schedule/:studyId', async function(req, res){
   const { id } = req.user._user;
   const { studyId } = req.params;
@@ -388,7 +405,9 @@ router.post('/newStudy', async function(req, res){
   const { name, recruitTitle, recruitContent, maxseat } = req.body;
 
   try{
-    const [rows] = await db.query(sql.study.insertStudy, [name, recruitTitle, maxseat, recruitContent]);
+    const [rows] = await db.query(sql.study.insertStudy, [name, recruitTitle, recruitContent, maxseat]);
+    await db.query(sql.study.insertCalendar, ['기본', rows.insertId])
+    await db.query(sql.study.insertUserStudy, [rows.insertId, id, 2]);
     res.status(200).send({
       result: "true",
       studyId: rows.insertId,
