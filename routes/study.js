@@ -408,7 +408,7 @@ router.post('/newStudy', async function(req, res){
     const [rows] = await db.query(sql.study.insertStudy, [name, recruitTitle, recruitContent, maxseat]);
     await db.query(sql.study.insertCalendar, ['기본', rows.insertId]);
     await db.query(sql.study.insertUserStudy, [rows.insertId, id, 2]);
-    const [chatroom] = await db.query(sql.study.insertChatRoomByStudyId, [rows.insertId]);
+    const [chatroom] = await db.query(sql.study.insertChatRoomByStudyId, [name, rows.insertId]);
     await db.query(sql.chat.insertMemberByChatRoomId, [chatroom.insertId, id]);
     res.status(200).send({
       result: "true",
@@ -420,5 +420,87 @@ router.post('/newStudy', async function(req, res){
   }
 })
 
+router.post('/accept/:study_id', async function (req, res) {
+  const { id } = req.user._user;
+  const { study_id } = req.params;
+  const { studentId } = req.body;
+
+  try {
+    let [rows] = await db.query(sql.study.selectStudyByLeader, [lecture_id, id]);
+    if (rows.length == 0) {
+      res.send({
+        msg: "권한이 없습니다."
+      });
+    } else if (rows[0].curSeat >= rows[0].maxSeat) {
+      res.send({
+        result: "false",
+        msg: "정원이 가득 찼습니다."
+      });
+    } else {
+      [rows] = await db.query(sql.study.selectRequestStudentByUserId, [study_id, studentId]);
+      if (rows.length == 0) {
+        res.send({
+          msg: "신청한 학생이 아닙니다."
+        });
+      } else {
+          await db.query(sql.study.updateAcceptStudentByUserId, [study_id, studentId]);
+          await db.query(sql.lecture.updateCurSeatByLectureId, [study_id]);
+          const [chat] = await db.query(sql.study.selectChatRoomByStudyId, [study_id]);
+          await db.query(sql.chat.insertMemberByChatRoomId, [chat[0].id, studentId])
+          res.send({
+            msg: "승인되었습니다."
+          });
+      }
+    }
+  } catch (e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
+
+router.post('/cancel/:lecture_id', async function (req, res) {
+  const { id } = req.user._user;
+  const { study_id } = req.params;
+  const { studentId } = req.body;
+  try {
+    let [rows] = await db.query(sql.study.selectStudyByLeader, [lecture_id, id]);
+    if (rows.length == 0) {
+      res.send({
+        msg: "권한이 없습니다."
+      });
+    } else {
+      await db.query(sql.study.deleteRegistStudyByStudyIdAndUserId, [study_id, studentId, 0]);
+      res.status(200).send({
+        result: "true",
+        data: [],
+        msg: "취소되었습니다."
+      })
+    }
+  } catch (e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
+
+router.post('/out/:lecture_id', async function (req, res) {
+  const { id } = req.user._user;
+  const { study_id } = req.params;
+  const { studentId } = req.body;
+  try {
+    let [rows] = await db.query(sql.study.selectStudyByLeader, [lecture_id, id]);
+    if (rows.length == 0) {
+      res.send({
+        msg: "권한이 없습니다."
+      });
+    } else {
+      await db.query(sql.study.deleteStudentByStudyIdAndUserId, [study_id, studentId, 1]);
+      res.status(200).send({
+        result: "true",
+        data: [],
+        msg: "추방되었습니다."
+      })
+    }
+  } catch (e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
 
 module.exports = router;

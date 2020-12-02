@@ -60,5 +60,8 @@ module.exports = {
     deleteRegistLectureByLectureIdAndUserId: `DELETE FROM baeuda.lecture_student WHERE lecture_id=? AND student_id=? AND state=?`,
     deleteLectureByLectureId: `DELETE FROM baeuda.lecture WHERE id=?`,
 
-    selectChatRoomByLectureId: `SELECT * FROM baeuda.chat_room WHERE lecture_id=?`
+    selectChatRoomByLectureId: `SELECT * FROM baeuda.chat_room WHERE lecture_id=?`,
+    insertChatRoomByLectureId: `INSERT INTO baeuda.chat_room (name, lecture_id) VALUES (?, ?)`,
+
+    selectAssignmentsByLectureId: `SELECT * FROM baeuda.lecture_assignment WHERE lecture_id=?`
 };

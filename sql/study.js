@@ -31,6 +31,17 @@ module.exports = {
     selectMembersByStudyId: `SELECT  s.study_id, u.id, s.state, u.userid, u.user_name, u.univid, u.student_id, u.phone_number
                             FROM baeuda.study_student as s JOIN baeuda.user as u ON s.student_id=u.id WHERE study_id=?`,
 
-    insertChatRoomByStudyId: `INSERT INTO baeuda.chat_room (name, study_id) VALUES (?, ?)`
-
+    selectChatRoomByStudyId: `SELECT * FROM baeuda.chat_room WHERE study_id=?`,
+    insertChatRoomByStudyId: `INSERT INTO baeuda.chat_room (name, study_id) VALUES (?, ?)`,
+    selectStudyByLeader: `SELECT * FROM baeuda.study as study 
+                          JOIN baeuda.study_student as student 
+                          ON study.id=student.study_id
+                          WHERE student.student_id=? AND student.state=2`,
+    selectRequestStudentByUserId: `SELECT * FROM baeuda.study as study 
+                          JOIN baeuda.study_student as student 
+                          ON study.id=student.study_id
+                          WHERE student.student_id=? AND student.state=0`,
+    updateAcceptStudentByUserId: "UPDATE baeuda.study_student SET state=1 WHERE study_id=? AND student_id=?",
+    updateCurSeatByLectureId: `UPDATE baeuda.study SET curSeat=curSeat+1 WHERE id=?`,
+    deleteRegistStudyByStudyIdAndUserId: `DELETE FROM baeuda.study_student WHERE study_id=? AND student_id=? AND state=?`,
 }

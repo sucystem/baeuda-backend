@@ -303,6 +303,22 @@ router.get('/accept/:lecture_id', async function (req, res) {
   }
 });
 
+router.get('/assignment/:lecture_id', async function(req, res){
+  const { id } = req.user._user;
+  const { lecture_id } = req.params;
+
+  try{
+    let [rows] = await db.query(sql.lecture.selectAssignmentsByLectureId, [lecture_id]);
+    res.status(200).send({
+      result: 'true',
+      data: rows,
+      msg: "과제 목록을 불러왔습니다."
+    })
+  } catch(e) {
+    helper.failedConnectionServer(res, e);
+  }
+})
+
 router.post('/accept/:lecture_id', async function (req, res) {
   const { id } = req.user._user;
   const { lecture_id } = req.params;
@@ -314,6 +330,13 @@ router.post('/accept/:lecture_id', async function (req, res) {
       res.send({
         msg: "권한이 없습니다."
       });
+    } else if (option === 'cancel') {
+      await db.query(sql.lecture.deleteRegistLectureByLectureIdAndUserId, [lecture_id, studentId, 0]);
+      res.status(200).send({
+        result: "true",
+        data: [],
+        msg: "취소되었습니다."
+      })
     } else if (rows[0].cur_student >= rows[0].max_student) {
       res.send({
         result: "false",
@@ -333,19 +356,12 @@ router.post('/accept/:lecture_id', async function (req, res) {
           rows.map(async row => {
             await db.query(sql.lecture.insertLessonsByLectureIdAndUserId, [row.id, studentId]);
           })    
-          const [chat] = db.query(sql.lecture.selectChatRoomByLectureId, [lecture_id]);
-          await db.query(sql.chat.insertMemberByChatRoomId, [chat[0].id, id])
+          const [chat] = await db.query(sql.lecture.selectChatRoomByLectureId, [lecture_id]);
+          await db.query(sql.chat.insertMemberByChatRoomId, [chat[0].id, studentId])
           res.send({
             msg: "승인되었습니다."
           });
-        } else if (option === 'cancel') {
-          await db.query(sql.lecture.deleteRegistLectureByLectureIdAndUserId, [lecture_id, studentId, 0]);
-          res.status(200).send({
-            result: "true",
-            data: [],
-            msg: "취소되었습니다."
-          })          
-        }
+        }      
       }
     }
   } catch (e) {
@@ -448,7 +464,8 @@ router.post('/add', async function (req, res){
         let [lesson] = await db.query(sql.lecture.insertLessonsByLectureId, [rows.insertId, (i+"강")]);
         await db.query(sql.lecture.insertLessonsByLectureIdAndUserId, [lesson.insertId, id]);
       }
-      const [chatroom] = await db.query(sql.study.insertChatRoomByStudyId, [rows.insertId]);
+      const [chatroom] = await db.query(sql.lecture.insertChatRoomByLectureId, [name, rows.insertId]);
+      console.log(chatroom.insertId, id)
       await db.query(sql.chat.insertMemberByChatRoomId, [chatroom.insertId, id])
 
       res.send({

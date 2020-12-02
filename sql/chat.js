@@ -8,5 +8,5 @@ module.exports = {
                                 WHERE chat_room=?
                                 ORDER BY c.id`,
     insertChattingBychatRoomId: `INSERT INTO baeuda.chat (chat_room, sender, chat) VALUES (?, ?, ?)`,
-    insertMemberByChatRoomId: `INSERT INTO baeuda.chat (chatroom_id, user_id) VALUES (?, ?)`
+    insertMemberByChatRoomId: `INSERT INTO baeuda.chat_member (chatroom_id, user_id) VALUES (?, ?)`
 }
