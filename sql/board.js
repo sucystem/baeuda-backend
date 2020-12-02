@@ -11,6 +11,7 @@ module.exports = {
     selectPostByPostIdAndUserId: `SELECT * FROM baeuda.post WHERE id=? AND writer=?`,
     deletePostByPostId: "DELETE FROM baeuda.post WHERE id=?",
     selectCommentByCommentIdAndUserId: `SELECT * FROM baeuda.comment WHERE id=? AND user_id=?`,
-    deleteCommentByCommentId: "DELETE FROM baeuda.comment WHERE id=?"
+    deleteCommentByCommentId: "DELETE FROM baeuda.comment WHERE id=?",
 
+    insertBoard: `INSERT INTO baeuda.board (name, comment, read_level, write_level, level) VALUES (?, ?, ?, ?, ?)`
 }

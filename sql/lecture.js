@@ -48,9 +48,10 @@ module.exports = {
     updateAcceptStudentByUserId: "UPDATE baeuda.lecture_student SET state=1 WHERE lecture_id=? AND student_id=?",
     insertUserLecture: `INSERT INTO baeuda.lecture_student (lecture_id, student_id) VALUES (?, ?)`,
     insertLessonsByLectureIdAndUserId: `INSERT INTO baeuda.lecture_lesson_progress (lesson_id, student_id) VALUES (?, ?)`,
-    insertLecture: `INSERT INTO baeuda.lecture (name, comment, max_student, prof) VALUES (?, ?, ?, ?)`,
+    insertLecture: `INSERT INTO baeuda.lecture (name, comment, max_student, prof, notice_id, data_id, qna_id) VALUES (?, ?, ?, ?, ?, ?, ?)`,
     updateLectureByLectureId: `UPDATE baeuda.lecture SET name=?, comment=?, max_student=? WHERE id=?`,
     insertLessonsByLectureId: `INSERT INTO baeuda.lecture_lesson (lecture_id, title) VALUES (?, ?)`,
+
 
     deleteRegistLectureByLectureIdAndUserId: `DELETE FROM baeuda.lecture_student WHERE lecture_id=? AND student_id=? AND state=?`,
     deleteLectureByLectureId: `DELETE FROM baeuda.lecture WHERE id=?`

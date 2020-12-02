@@ -375,9 +375,12 @@ router.post('/add', async function (req, res){
         msg: "권한이 없습니다."
       });
     } else {
-      [rows] = await db.query(sql.lecture.insertLecture, [name, comment, max_student, id]);
+      let [Notice] = await db.query(sql.board.insertBoard, ['Notice', name, 0, 1, 'lecture']);
+      let [Data] = await db.query(sql.board.insertBoard, ['Data', name, 0, 1, 'lecture']);
+      let [QnA] = await db.query(sql.board.insertBoard, ['QnA', name, 0, 0, 'lecture']);
+      [rows] = await db.query(sql.lecture.insertLecture, [name, comment, max_student, id, Notice.insertId, Data.insertId, QnA.insertId]);
       for(var i=1; i<=10; i++){
-        await db.query(sql.lecture.insertLessonsByLectureId, [rows[0].insertId, i]);
+        await db.query(sql.lecture.insertLessonsByLectureId, [rows.insertId, (i+"강")]);
       }
 
       res.send({
