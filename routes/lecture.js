@@ -365,11 +365,10 @@ router.get('/complete', async function (req, res) {
 
 router.post('/add', async function (req, res){
   const { id } = req.user._user;
-  const {lecture_id} = req.params;
   const {name, comment, max_student} = req.body;
 
   try{
-    let [rows] = await db.query(sql.lecture.selectLectureByProf, [lecture_id, id]);
+    let [rows] = await db.query(sql.user.checkUserLevel, [id, 2]);
     if (rows.length == 0) {
       res.send({
         result: "false",
@@ -377,9 +376,8 @@ router.post('/add', async function (req, res){
       });
     } else {
       [rows] = await db.query(sql.lecture.insertLecture, [name, comment, max_student, id]);
-
       for(var i=1; i<=10; i++){
-        await db.query(sql.lecture.insertLessonsByLectureId, [rows[0].id, i]);
+        await db.query(sql.lecture.insertLessonsByLectureId, [rows[0].insertId, i]);
       }
 
       res.send({
