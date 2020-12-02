@@ -83,9 +83,9 @@ router.get('/today', async function(req, res){
 router.post('/add', async function(req, res){
     const { id } = req.user._user;
     const { calendarId, title, start, end, category } = req.body;
-
+    console.log(req.body);
     try{
-        await db.query(sql.schedule.insertSchedule, [calendarId, title, category, start, end]);
+        await db.query(sql.schedule.insertSchedule, [calendarId, title, category, start._date, end._date]);
         res.status(200).send({
             result: "true",
             msg: "스케쥴 생성에 성공했습니다."
