@@ -15,6 +15,8 @@ var communityRouter = require('./routes/community');
 var boardRouter = require('./routes/board');
 var scheduleRouter = require('./routes/schedule');
 var chatRouter = require('./routes/chat');
+var downloadRouter = require('./routes/download');
+//var getdownloadFilenameRouter = require('./routes/getDownloadFilename');
 //var mysqlRouter = require('./routes/mysql');
 
 var cors = require('cors');
@@ -32,6 +34,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 // session
 createSession = () =>  {
@@ -59,6 +62,8 @@ app.use('/community', communityRouter);
 app.use('/board', boardRouter);
 app.use('/schedule', scheduleRouter);
 app.use('/chat', chatRouter);
+app.use('/download', downloadRouter);
+//app.use('/downloadd',getdownloadFilenameRouter);
 //app.use('/mysql', mysqlRouter);
 
 // catch 404 and forward to error handler
