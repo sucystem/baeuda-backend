@@ -7,6 +7,7 @@ const sql = require('../sql');
 var tokenUser = require('../modules/user');
 const fileUpload = require('express-fileupload')
 var fs = require('fs')
+var crypto = require('crypto');
 
 router.use(tokenUser.tokenToUser);
 router.use(fileUpload());
@@ -73,10 +74,11 @@ router.post('/reference/:studyId', async function(req, res){
   const { id } = req.user._user;
   const {studyId} = req.params;
   const { file } = req.files;
+  var time = new Date();
 
   try {
     if (file) {
-      var name = crypto.createHash('sha256').update(file[0].name + time + id).digest('base64');
+      var name = crypto.createHash('sha256').update(file.name + time + id).digest('base64');
       name = name.replace(/\//gi, '++');
       await fs.mkdir(`./files/${name}`, function (err, result) {
         if (err) console.log(err);
