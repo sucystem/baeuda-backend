@@ -354,6 +354,31 @@ router.post('/accept/:lecture_id', async function (req, res) {
 router.post('/graduate/:lecture_id', async function (req, res) {
   const { id } = req.user._user;
   const { lecture_id } = req.params;
+  const { grade, studentId } = req.body;
+
+  try {
+    let [rows] = await db.query(sql.lecture.selectLectureByProf, [lecture_id, id]);
+    if (rows.length == 0) {
+      res.send({
+        msg: "권한이 없습니다."
+      });
+    } else {
+      await db.query(sql.lecture.updateGraduateStudentByUserId, [grade, lecture_id, studentId]);
+      await db.query(sql.lecture.minusCurStudentByLectureId, [lecture_id]);
+      res.status(200).send({
+        result: "true",
+        data: [],
+        msg: "이수처리 되었습니다."
+      });
+    }
+  } catch (e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
+
+router.post('/outstudent/:lecture_id', async function (req, res) {
+  const { id } = req.user._user;
+  const { lecture_id } = req.params;
   const { grade, option, studentId } = req.body;
 
   try {
