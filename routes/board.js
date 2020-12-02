@@ -207,7 +207,7 @@ router.post('/:board_id/newPost', async function (req, res) {
             const promise = file.map((file) => {
                 var name = crypto.createHash('sha256').update(file.name + time).digest('base64');
                 name = name.replace(/\//gi, '++');
-                file.mv(`./files/'${name}'`);
+                file.mv(`./files/${name}/${file.name}`);
                 db.query(sql.board.insertFile, [file.name, name, rows.insertId]);
             })
 
