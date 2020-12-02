@@ -29,6 +29,8 @@ module.exports = {
                             WHERE study_id=?`,
     insertCalendar: `INSERT INTO baeuda.calendar (name, study_id) VALUES (?, ?)`,
     selectMembersByStudyId: `SELECT  s.study_id, u.id, s.state, u.userid, u.user_name, u.univid, u.student_id, u.phone_number
-                            FROM baeuda.study_student as s JOIN baeuda.user as u ON s.student_id=u.id WHERE study_id=?`
+                            FROM baeuda.study_student as s JOIN baeuda.user as u ON s.student_id=u.id WHERE study_id=?`,
+
+    insertChatRoomByStudyId: `INSERT INTO baeuda.chat_room (name, study_id) VALUES (?, ?)`
 
 }

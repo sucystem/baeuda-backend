@@ -361,7 +361,7 @@ router.get('/schedule/:studyId', async function(req, res){
   }
 })
 
-router.get('/study/member/:studyId', async function(req, res){
+router.get('/member/:studyId', async function(req, res){
   const { id } = req.user._user;
   const { studyId } = req.params;
 
@@ -406,8 +406,10 @@ router.post('/newStudy', async function(req, res){
 
   try{
     const [rows] = await db.query(sql.study.insertStudy, [name, recruitTitle, recruitContent, maxseat]);
-    await db.query(sql.study.insertCalendar, ['기본', rows.insertId])
+    await db.query(sql.study.insertCalendar, ['기본', rows.insertId]);
     await db.query(sql.study.insertUserStudy, [rows.insertId, id, 2]);
+    const [chatroom] = await db.query(sql.study.insertChatRoomByStudyId, [rows.insertId]);
+    await db.query(sql.chat.insertMemberByChatRoomId, [chatroom.insertId, id]);
     res.status(200).send({
       result: "true",
       studyId: rows.insertId,

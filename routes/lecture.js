@@ -332,7 +332,9 @@ router.post('/accept/:lecture_id', async function (req, res) {
           [rows] = await db.query(sql.lecture.selectLessonsByLectureId, [lecture_id]);
           rows.map(async row => {
             await db.query(sql.lecture.insertLessonsByLectureIdAndUserId, [row.id, studentId]);
-          })
+          })    
+          const [chat] = db.query(sql.lecture.selectChatRoomByLectureId, [lecture_id]);
+          await db.query(sql.chat.insertMemberByChatRoomId, [chat[0].id, id])
           res.send({
             msg: "승인되었습니다."
           });
@@ -446,6 +448,8 @@ router.post('/add', async function (req, res){
         let [lesson] = await db.query(sql.lecture.insertLessonsByLectureId, [rows.insertId, (i+"강")]);
         await db.query(sql.lecture.insertLessonsByLectureIdAndUserId, [lesson.insertId, id]);
       }
+      const [chatroom] = await db.query(sql.study.insertChatRoomByStudyId, [rows.insertId]);
+      await db.query(sql.chat.insertMemberByChatRoomId, [chatroom.insertId, id])
 
       res.send({
         result: "true",

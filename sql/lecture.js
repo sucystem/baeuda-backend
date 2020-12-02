@@ -58,5 +58,7 @@ module.exports = {
     updateGraduateStudentByUserId: `UPDATE baeuda.lecture_student SET state=2, grade=? WHERE lecture_id=? AND student_id=?`,
 
     deleteRegistLectureByLectureIdAndUserId: `DELETE FROM baeuda.lecture_student WHERE lecture_id=? AND student_id=? AND state=?`,
-    deleteLectureByLectureId: `DELETE FROM baeuda.lecture WHERE id=?`
+    deleteLectureByLectureId: `DELETE FROM baeuda.lecture WHERE id=?`,
+
+    selectChatRoomByLectureId: `SELECT * FROM baeuda.chat_room WHERE lecture_id=?`
 };
