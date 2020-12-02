@@ -4,8 +4,10 @@ var sql = require('../sql')
 var db = require('../modules/db')
 var helper = require('../modules/helper')
 var tokenUser = require('../modules/user');
+const fileUpload = require('express-fileupload')
 
 router.use(tokenUser.tokenToUser);
+router.use(fileUpload());
 
 router.get('/', function (req, res) {
     res.send("board");
@@ -183,8 +185,11 @@ router.get('/:board_id/:post_id/comments', async function (req, res) {
 router.post('/:board_id/newPost', async function (req, res) {
     console.log(req.body);
     const { id } = req.user._user;
-    const { title, content } = req.body;
+    const { title, content, inputFile} = req.body;
+//    let  filess=req.files.inputFile;
     const { board_id } = req.params;
+    console.log(inputFile);
+
     try {
         let [rows] = await db.query(sql.board.checkWriteLevelByUserId, [board_id, id]);
         if (rows.length == 0) {
@@ -193,12 +198,13 @@ router.post('/:board_id/newPost', async function (req, res) {
                 msg: "권한이 없습니다."
             })
         } else {
-            [rows] = await db.query(sql.board.insertPost, [board_id, title, content, id, null]);
+            [rows] = await db.query(sql.board.insertPost, [board_id, title, content, id, inputFile]);
             res.status(200).send({
                 result: "true",
                 postid: rows.insertId,
                 msg: "게시글 등록에 성공했습니다."
             });
+
         }
     } catch (e) {
         helper.failedConnectionServer(res, e);
