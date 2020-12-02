@@ -43,15 +43,19 @@ module.exports = {
 
                                 
     checkProfForLecture: "SELECT * FROM baeuda.lecture WHERE id=? AND prof=?",
-    selectListRequestStudentsByLectureId: "SELECT u.id, u.user_name, u.univid, u.student_id, u.phone_number from baeuda.user as u JOIN baeuda.lecture_student as l ON l.student_id=u.id WHERE l.lecture_id=? AND l.state=0",
+    selectStudentsByLectureId: "SELECT u.id, u.user_name, u.univid, u.student_id, u.phone_number, l.grade from baeuda.user as u JOIN baeuda.lecture_student as l ON l.student_id=u.id WHERE l.lecture_id=? AND l.state=?",
     selectRequestStudentByUserId: "SELECT u.id, u.user_name, u.univid, u.student_id, u.phone_number from baeuda.user as u JOIN baeuda.lecture_student as l ON l.student_id=u.id WHERE l.lecture_id=? AND u.id=? AND l.state=0",
     updateAcceptStudentByUserId: "UPDATE baeuda.lecture_student SET state=1 WHERE lecture_id=? AND student_id=?",
     insertUserLecture: `INSERT INTO baeuda.lecture_student (lecture_id, student_id) VALUES (?, ?)`,
+    insertProfLecture: `INSERT INTO baeuda.lecture_student (lecture_id, student_id, state) VALUES (?, ?, 99)`,
     insertLessonsByLectureIdAndUserId: `INSERT INTO baeuda.lecture_lesson_progress (lesson_id, student_id) VALUES (?, ?)`,
     insertLecture: `INSERT INTO baeuda.lecture (name, comment, max_student, prof, notice_id, data_id, qna_id) VALUES (?, ?, ?, ?, ?, ?, ?)`,
     updateLectureByLectureId: `UPDATE baeuda.lecture SET name=?, comment=?, max_student=? WHERE id=?`,
     insertLessonsByLectureId: `INSERT INTO baeuda.lecture_lesson (lecture_id, title) VALUES (?, ?)`,
 
+    updateCurStudentByLectureId: `UPDATE baeuda.lecture SET cur_student=cur_student+1 WHERE id=?`,
+    minusCurStudentByLectureId: `UPDATE baeuda.lecture SET cur_student=cur_student-1 WHERE id=?`,
+    updateGraduateStudentByUserId: `UPDATE baeuda.lecture_student SET state=2, grade=? WHERE lecture_id=? AND student_id=?`,
 
     deleteRegistLectureByLectureIdAndUserId: `DELETE FROM baeuda.lecture_student WHERE lecture_id=? AND student_id=? AND state=?`,
     deleteLectureByLectureId: `DELETE FROM baeuda.lecture WHERE id=?`
