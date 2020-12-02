@@ -42,6 +42,6 @@ module.exports = {
                           ON study.id=student.study_id
                           WHERE student.student_id=? AND student.state=0`,
     updateAcceptStudentByUserId: "UPDATE baeuda.study_student SET state=1 WHERE study_id=? AND student_id=?",
-    updateCurSeatByStudyId: `UPDATE baeuda.study SET curSeat=curSeat+1 WHERE id=?`,
+    updateCurSeatByStudyId: `UPDATE baeuda.study SET currentSeat=currentSeat+1 WHERE id=?`,
     deleteRegistStudyByStudyIdAndUserId: `DELETE FROM baeuda.study_student WHERE study_id=? AND student_id=? AND state=?`,
 }

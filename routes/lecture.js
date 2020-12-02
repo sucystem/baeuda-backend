@@ -620,4 +620,47 @@ router.post('/newPost', async function(req,res){
   }
 });
 
+router.post('/assignment/new', async function(req,res){
+  const { id } = req.user._user;
+  const { lectureId, title, content } = req.body;
+  var file = null;
+  var time = new Date();
+  var inputFile = 0;
+  var board_id;
+
+  if (req.files) {
+    file = req.files.file;
+  }
+  try {
+    if (file) {
+      if (!file.length) {
+        file = [file];
+      }
+      inputFile = file.length;
+    }
+      const [rows] = await db.query(sql.board.insertAssignment, [lectureId, title, content, id, inputFile]);
+
+      if (file) {
+        var name = crypto.createHash('sha256').update(file[0].name + time + id).digest('base64');
+        name = name.replace(/\//gi, '++');
+        await fs.mkdir(`./files/${name}`, function (err, result) {
+          if (err) console.log(err);
+        });
+        const promise = file.map((file) => {
+          file.mv(`./files/${name}/${file.name}`);
+          db.query(sql.board.insertFile, [file.name, name, rows.insertId, id]);
+        })
+        await Promise.all(promise);
+      }
+
+      res.status(200).send({
+        result: "true",
+        postid: rows.insertId,
+        msg: "과제 등록에 성공했습니다."
+      });
+  } catch (e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
+
 module.exports = router;
