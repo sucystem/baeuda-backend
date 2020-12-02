@@ -6,6 +6,7 @@ var helper = require('../modules/helper')
 var tokenUser = require('../modules/user');
 const fileUpload = require('express-fileupload')
 var crypto = require('crypto');
+var fs = require('fs');
 
 router.use(tokenUser.tokenToUser);
 router.use(fileUpload());
@@ -93,6 +94,7 @@ router.post('/post/:post_id', async function (req, res){
             await db.query(sql.board.increaseCountByPostId, [post_id]);
             const [post] = await db.query(sql.board.selectPostByPostId, [post_id]);
             const [comment] = await db.query(sql.board.selectCommentsByPostId, [post_id]);
+            let [files] = await db.query(sql.board.selectFilesByPostId, [post_id]);
             var comments = []
             const promise = comment.map(async row => {
                 if(row.user_id == id){
@@ -104,7 +106,7 @@ router.post('/post/:post_id', async function (req, res){
             await Promise.all(promise);
             res.status(200).send({
                 result: 'true',
-                data: { post, comments },
+                data: { post, comments, files },
                 msg: "게시글 읽기 성공"
             })
     } catch(e) {
@@ -187,13 +189,20 @@ router.get('/:board_id/:post_id/comments', async function (req, res) {
 router.post('/:board_id/newPost', async function (req, res) {
     const { id } = req.user._user;
     const { title, content } = req.body;
-    var { file } = req.files || null;
+    var file = null;
     const { board_id } = req.params;
     var time = new Date();
+    var inputFile = 0;
 
+    if(req.files){
+        file = req.files.file;
+    }
     try {
-        if(!file.length){
-            file = [file];
+        if (file) {
+            if (!file.length) {
+                file = [file];
+            }
+            inputFile = file.length;
         }
         let [rows] = await db.query(sql.board.checkWriteLevelByUserId, [board_id, id]);
         if (rows.length == 0) {
@@ -202,16 +211,20 @@ router.post('/:board_id/newPost', async function (req, res) {
                 msg: "권한이 없습니다."
             })
         } else {
-            [rows] = await db.query(sql.board.insertPost, [board_id, title, content, id, file.length]);
-            
+            [rows] = await db.query(sql.board.insertPost, [board_id, title, content, id, inputFile]);
+           
+            if(file){
+            var name = crypto.createHash('sha256').update(file[0].name + time + id).digest('base64');
+            name = name.replace(/\//gi, '++');
+            await fs.mkdir(`./files/${name}`, function(err, result){
+                if(err) console.log(err);
+            });
             const promise = file.map((file) => {
-                var name = crypto.createHash('sha256').update(file.name + time).digest('base64');
-                name = name.replace(/\//gi, '++');
                 file.mv(`./files/${name}/${file.name}`);
                 db.query(sql.board.insertFile, [file.name, name, rows.insertId]);
             })
-
             await Promise.all(promise);
+            }
             
             res.status(200).send({
                 result: "true",

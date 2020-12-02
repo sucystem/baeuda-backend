@@ -7,10 +7,9 @@ var mime = require('mime');
 
 var getDownloadFilename = require('./getDownloadFilename').getDownloadFilename;
 
-router.get('/:file_name', function(req, res, next) {
-  var upload_folder = 'UploadedFile/';              // (설치폴더/) '경로/'
-  var file = upload_folder + req.params.file_name; // ex) /upload/files/sample.txt
-  
+router.get('/:path/:file_name', function(req, res, next) {
+  var upload_folder = 'files/';              // (설치폴더/) '경로/'
+  var file = upload_folder + req.params.path + '/' + req.params.file_name; // ex) /upload/files/sample.txt
   try {
     if (fs.existsSync(file)) { // 파일이 존재하는지 체크
       var filename = path.basename(file); // 파일 경로에서 파일명(확장자포함)만 추출

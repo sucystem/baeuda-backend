@@ -310,14 +310,14 @@ router.post('/apply/:studyId', async function(req, res){
     let [rows] = await db.query(sql.study.selectStudyById, [studyId]);
     if (rows.length == 0) {
       res.status(200).send({
-        msg: '존재하지 않는 강좌입니다.'
+        msg: '존재하지 않는 스터디입니다.'
       });
     }
     else {
       [rows] = await db.query(sql.study.selectStudyByStudyIdAndUserId, [studyId, id]);
       if (rows.length != 0) {
         res.status(200).send({
-          msg: '이미 신청한 강좌입니다.'
+          msg: '이미 신청한 스터디입니다.'
         })
       } else {
         await db.query(sql.study.insertUserStudy, [studyId, id]);

@@ -4,8 +4,12 @@ var db = require('../modules/db');
 var sql = require('../sql');
 var helper = require('../modules/helper');
 var tokenUser = require('../modules/user');
+const fileUpload = require('express-fileupload')
+var crypto = require('crypto');
+var fs = require('fs');
 
 router.use(tokenUser.tokenToUser);
+router.use(fileUpload());
 
 router.get('/', async function (req, res, next) {
   const { id } = req.user._user;
@@ -476,4 +480,66 @@ router.post('/delete/:lecture_id', async function (req, res){
     helper.failedConnectionServer(res, e);
   }
 })
+
+router.post('/newPost', async function(req,res){
+  const { id } = req.user._user;
+  const { lectureId, title, content, board } = req.body;
+  var file = null;
+  var time = new Date();
+  var inputFile = 0;
+  var board_id;
+
+  if (req.files) {
+    file = req.files.file;
+  }
+  try {
+    let [rows] = await db.query(sql.lecture.selectLectureById, [lectureId]);
+    if(board === 'notice'){
+      board_id = rows[0].notice_id;
+    } else if(board === 'qna'){
+      board_id = rows[0].qna_id;
+    } else if(board === 'data'){
+      board_id = rows[0].data_id;
+    } else {
+      throw(board);
+    }
+    if (file) {
+      if (!file.length) {
+        file = [file];
+      }
+      inputFile = file.length;
+    }
+    [rows] = await db.query(sql.board.checkWriteLevelByUserId, [board_id, id]);
+    if (rows.length == 0) {
+      res.send({
+        result: "false",
+        msg: "권한이 없습니다."
+      })
+    } else {
+      [rows] = await db.query(sql.board.insertPost, [board_id, title, content, id, inputFile]);
+
+      if (file) {
+        var name = crypto.createHash('sha256').update(file[0].name + time + id).digest('base64');
+        name = name.replace(/\//gi, '++');
+        await fs.mkdir(`./files/${name}`, function (err, result) {
+          if (err) console.log(err);
+        });
+        const promise = file.map((file) => {
+          file.mv(`./files/${name}/${file.name}`);
+          db.query(sql.board.insertFile, [file.name, name, rows.insertId]);
+        })
+        await Promise.all(promise);
+      }
+
+      res.status(200).send({
+        result: "true",
+        postid: rows.insertId,
+        msg: "게시글 등록에 성공했습니다."
+      });
+    }
+  } catch (e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
+
 module.exports = router;
