@@ -388,7 +388,7 @@ router.post('/outstudent/:lecture_id', async function (req, res) {
         msg: "권한이 없습니다."
       });
     } else {
-      await db.query(sql.lecture.updateGraduateStudentByUserId, [grade, lecture_id, studentId]);
+      await db.query(sql.lecture.deleteRegistLectureByLectureIdAndUserId, [lecture_id, studentId, 1]);
       await db.query(sql.lecture.minusCurStudentByLectureId, [lecture_id]);
       res.status(200).send({
         result: "true",
@@ -551,7 +551,7 @@ router.post('/newPost', async function(req,res){
         });
         const promise = file.map((file) => {
           file.mv(`./files/${name}/${file.name}`);
-          db.query(sql.board.insertFile, [file.name, name, rows.insertId]);
+          db.query(sql.board.insertFile, [file.name, name, rows.insertId, id]);
         })
         await Promise.all(promise);
       }

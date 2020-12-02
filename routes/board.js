@@ -221,7 +221,7 @@ router.post('/:board_id/newPost', async function (req, res) {
             });
             const promise = file.map((file) => {
                 file.mv(`./files/${name}/${file.name}`);
-                db.query(sql.board.insertFile, [file.name, name, rows.insertId]);
+                db.query(sql.board.insertFile, [file.name, name, rows.insertId, id]);
             })
             await Promise.all(promise);
             }

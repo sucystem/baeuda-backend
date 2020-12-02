@@ -5,8 +5,11 @@ const db = require('../modules/db');
 const helper = require('../modules/helper');
 const sql = require('../sql');
 var tokenUser = require('../modules/user');
+const fileUpload = require('express-fileupload')
+var fs = require('fs')
 
 router.use(tokenUser.tokenToUser);
+router.use(fileUpload());
 
 router.get('/', function(req, res, next) {
   res.send('respond of study request');
@@ -47,7 +50,7 @@ router.get('/reference/:studyId', async function(req, res){
   const { studyId } = req.params;
 
   try{
-    const [rows] = await db.query(sql.study.selectStudyById, [studyId]);
+    const [rows] = await db.query(sql.study.selectFilesByStudyId, [studyId]);
     if(rows.length == 0){
       res.status(200).send({
         result: "false",
@@ -62,6 +65,31 @@ router.get('/reference/:studyId', async function(req, res){
       })
     }
   }catch(e){
+    helper.failedConnectionServer(res, e);
+  }
+})
+
+router.post('/reference/:studyId', async function(req, res){
+  const { id } = req.user._user;
+  const {studyId} = req.params;
+  const { file } = req.files;
+
+  try {
+    if (file) {
+      var name = crypto.createHash('sha256').update(file[0].name + time + id).digest('base64');
+      name = name.replace(/\//gi, '++');
+      await fs.mkdir(`./files/${name}`, function (err, result) {
+        if (err) console.log(err);
+      });
+      file.mv(`./files/${name}/${file.name}`);
+      await db.query(sql.study.insertFile, [file.name, name, studyId, id]);
+    }
+
+    res.status(200).send({
+      result: "true",
+      msg: "파일 업로드에 성공했습니다."
+    });
+  } catch (e) {
     helper.failedConnectionServer(res, e);
   }
 })
@@ -352,5 +380,22 @@ router.post('/schedule/:studyId', async function(req, res){
     helper.failedConnectionServer(res, e);
   }
 })
+
+router.post('/newStudy', async function(req, res){
+  const { id } = req.user._user;
+  const { name, recruitTitle, recruitContent, maxseat } = req.body;
+
+  try{
+    const [rows] = await db.query(sql.study.insertStudy, [name, recruitTitle, maxseat, recruitContent]);
+    res.status(200).send({
+      result: "true",
+      studyId: rows.insertId,
+      msg: "스터디 생성 성공"
+    });
+  } catch(e) {
+    helper.failedConnectionServer(res, e);
+  }
+})
+
 
 module.exports = router;
