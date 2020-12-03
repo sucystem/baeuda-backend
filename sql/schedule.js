@@ -13,6 +13,12 @@ module.exports = {
                                 JOIN baeuda.calendar as c
                                 ON c.id=s.calendarId
                                 WHERE c.study_id=?`,
+
+    selectScheduleByProjectId: `SELECT s.id, s.calendarId, s.title, s. category, s.dueDateClass, s.start, s.end 
+                                FROM baeuda.schedule as s 
+                                JOIN baeuda.calendar as c
+                                ON c.id=s.calendarId
+                                WHERE c.project_id=?`,
     
     deleteScheduleById: `DELETE FROM baeuda.schedule WHERE id=?`
 };
