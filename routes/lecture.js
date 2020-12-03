@@ -320,18 +320,29 @@ router.get('/assignment/:lecture_id', async function(req, res){
   }
 })
 
-router.get('/assignment/post/:assignment_id', async function(req, res){
+router.get('/assignment/post/:lecture_id/:assignment_id', async function(req, res){
   const { id } = req.user._user;
-  const { assignment_id } = req.params;
+  const { lecture_id, assignment_id } = req.params;
 
   try{
     const [post] = await db.query(sql.lecture.selectAssignmentById, [assignment_id]);
     const [files] = await db.query(sql.lecture.selectFilesByAssignmentId, [assignment_id]);
-    res.status(200).send({
-      result: 'true',
-      data: {post, files},
-      msg: "과제를 불러왔습니다."
-    })
+    const [rows] = await db.query(sql.lecture.checkProfForLecture, [lecture_id, id]);
+    if (rows.length == 0) {
+      const [submits] = await db.query(sql.lecture.selectSubmissionsByUserId, [assignment_id, id]);
+      res.status(200).send({
+        result: 'true',
+        data: { post, files, submits },
+        msg: "과제를 불러왔습니다."
+      })
+    } else {
+      const [submits] = await db.query(sql.lecture.selectSubmissionsByAssignmentId, [assignment_id]);
+      res.status(200).send({
+        result: 'true',
+        data: { post, files, submits },
+        msg: "과제를 불러왔습니다."
+      })
+    }
   }catch(e){
     helper.failedConnectionServer(res, e);
   }
@@ -627,7 +638,6 @@ router.post('/assignment/new', async function(req,res){
   var file = null;
   var time = new Date();
   var inputFile = 0;
-  var board_id;
 
   if (req.files) {
     file = req.files.file;
@@ -658,6 +668,48 @@ router.post('/assignment/new', async function(req,res){
         result: "true",
         assignment_id: rows.insertId,
         msg: "과제 등록에 성공했습니다."
+      });
+  } catch (e) {
+    helper.failedConnectionServer(res, e);
+  }
+});
+
+router.post('/submit', async function(req,res){
+  const { id } = req.user._user;
+  const { lectureId, assignment_id, content } = req.body;
+  var file = null;
+  var time = new Date();
+  var inputFile = 0;
+
+  if (req.files) {
+    file = req.files.file;
+  }
+  try {
+    if (file) {
+      if (!file.length) {
+        file = [file];
+      }
+      inputFile = file.length;
+    }
+      const [rows] = await db.query(sql.lecture.insertSubmission, [assignment_id, content, id, inputFile]);
+
+      if (file) {
+        var name = crypto.createHash('sha256').update(file[0].name + time + id).digest('base64');
+        name = name.replace(/\//gi, '++');
+        await fs.mkdir(`./files/${name}`, function (err, result) {
+          if (err) console.log(err);
+        });
+        const promise = file.map((file) => {
+          file.mv(`./files/${name}/${file.name}`);
+          db.query(sql.lecture.insertSubmitFile, [file.name, name, rows.insertId, id]);
+        })
+        await Promise.all(promise);
+      }
+
+      res.status(200).send({
+        result: "true",
+        assignment_id: rows.insertId,
+        msg: "과제 제출에 성공했습니다."
       });
   } catch (e) {
     helper.failedConnectionServer(res, e);

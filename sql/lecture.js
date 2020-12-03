@@ -68,5 +68,16 @@ module.exports = {
     selectFilesByAssignmentId: `SELECT * FROM baeuda.file WHERE assignment_id=?`,
     deleteAssignmentById: `DELETE FROM baeuda.lecture_assignment WHERE id=?`,
     insertAssignFile: `INSERT INTO baeuda.file (name, path, assignment_id, user_id) VALUES (?, ?, ?, ?)`,
-    insertAssignment: `INSERT INTO baeuda.lecture_assignment (lecture_id, title, content, dueDate, file) VALUES (?, ?, ?, ?, ?)`
+    insertAssignment: `INSERT INTO baeuda.lecture_assignment (lecture_id, title, content, dueDate, file) VALUES (?, ?, ?, ?, ?)`,
+
+    insertSubmitFile: `INSERT INTO baeuda.file (name, path, submit_id, user_id) VALUES (?, ?, ?, ?)`,
+    insertSubmission: `INSERT INTO baeuda.lecture_assignment_submission (assignment_id, content, user_id, file) VALUES (?, ?, ?, ?)`,
+
+    selectSubmissionsByUserId: `SELECT s.id, s.assignment_id, s.user_id, u.user_name, u.univid, u.student_id, s.submitDate, s.content, f.id as file_id, f.path, f.name
+                                FROM baeuda.lecture_assignment_submission as s JOIN baeuda.user as u ON s.user_id=u.id LEFT JOIN baeuda.file as f
+                                ON f.submit_id=s.id WHERE s.assignment_id=? AND s.user_id=? ORDER BY submitDate`,
+    
+    selectSubmissionsByAssignmentId: `SELECT s.id, s.assignment_id, s.user_id, u.user_name, u.univid, u.student_id, s.submitDate, s.content, f.id as file_id, f.path, f.name
+                                FROM baeuda.lecture_assignment_submission as s JOIN baeuda.user as u ON s.user_id=u.id LEFT JOIN baeuda.file as f
+                                ON f.submit_id=s.id WHERE s.assignment_id=? ORDER BY submitDate`,
 };
