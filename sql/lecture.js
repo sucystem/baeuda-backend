@@ -66,5 +66,7 @@ module.exports = {
     selectAssignmentsByLectureId: `SELECT * FROM baeuda.lecture_assignment WHERE lecture_id=?`,
     selectAssignmentById: `SELECT * FROM baeuda.lecture_assignment WHERE id=?`,
     selectFilesByAssignmentId: `SELECT * FROM baeuda.file WHERE assignment_id=?`,
-    deleteAssignmentById: `DELETE FROM baeuda.lecture_assignment WHERE id=?`
+    deleteAssignmentById: `DELETE FROM baeuda.lecture_assignment WHERE id=?`,
+    insertAssignFile: `INSERT INTO baeuda.file (name, path, assignment_id, user_id) VALUES (?, ?, ?, ?)`,
+    insertAssignment: `INSERT INTO baeuda.lecture_assignment (lecture_id, title, content, dueDate, file) VALUES (?, ?, ?, ?, ?)`
 };

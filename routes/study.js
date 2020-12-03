@@ -446,6 +446,7 @@ router.post('/accept/:study_id', async function (req, res) {
           await db.query(sql.study.updateAcceptStudentByUserId, [study_id, student_id]);
           await db.query(sql.study.updateCurSeatByStudyId, [study_id]);
           const [chat] = await db.query(sql.study.selectChatRoomByStudyId, [study_id]);
+          console.log(chat);
           await db.query(sql.chat.insertMemberByChatRoomId, [chat[0].id, student_id])
           res.send({
             msg: "승인되었습니다."

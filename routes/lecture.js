@@ -7,6 +7,7 @@ var tokenUser = require('../modules/user');
 const fileUpload = require('express-fileupload')
 var crypto = require('crypto');
 var fs = require('fs');
+var moment = require('moment');
 
 router.use(tokenUser.tokenToUser);
 router.use(fileUpload());
@@ -622,7 +623,7 @@ router.post('/newPost', async function(req,res){
 
 router.post('/assignment/new', async function(req,res){
   const { id } = req.user._user;
-  const { lectureId, title, content } = req.body;
+  const { lectureId, title, content, dueDate } = req.body;
   var file = null;
   var time = new Date();
   var inputFile = 0;
@@ -638,7 +639,7 @@ router.post('/assignment/new', async function(req,res){
       }
       inputFile = file.length;
     }
-      const [rows] = await db.query(sql.board.insertAssignment, [lectureId, title, content, id, inputFile]);
+      const [rows] = await db.query(sql.lecture.insertAssignment, [lectureId, title, content, moment(dueDate).format('YYYY-MM-DD hh:mm:ss'), inputFile]);
 
       if (file) {
         var name = crypto.createHash('sha256').update(file[0].name + time + id).digest('base64');
@@ -648,14 +649,14 @@ router.post('/assignment/new', async function(req,res){
         });
         const promise = file.map((file) => {
           file.mv(`./files/${name}/${file.name}`);
-          db.query(sql.board.insertFile, [file.name, name, rows.insertId, id]);
+          db.query(sql.lecture.insertAssignFile, [file.name, name, rows.insertId, id]);
         })
         await Promise.all(promise);
       }
 
       res.status(200).send({
         result: "true",
-        postid: rows.insertId,
+        assignment_id: rows.insertId,
         msg: "과제 등록에 성공했습니다."
       });
   } catch (e) {
