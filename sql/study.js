@@ -36,11 +36,11 @@ module.exports = {
     selectStudyByLeader: `SELECT * FROM baeuda.study as study 
                           JOIN baeuda.study_student as student 
                           ON study.id=student.study_id
-                          WHERE student.student_id=? AND student.state=2`,
+                          WHERE study.id=? AND student.student_id=? AND student.state=2`,
     selectRequestStudentByUserId: `SELECT * FROM baeuda.study as study 
                           JOIN baeuda.study_student as student 
                           ON study.id=student.study_id
-                          WHERE student.student_id=? AND student.state=0`,
+                          WHERE study.id=? AND student.student_id=? AND student.state=0`,
     updateAcceptStudentByUserId: "UPDATE baeuda.study_student SET state=1 WHERE study_id=? AND student_id=?",
     updateCurSeatByStudyId: `UPDATE baeuda.study SET currentSeat=currentSeat+1 WHERE id=?`,
     minusCurSeatByStudyId: `UPDATE baeuda.study SET currentSeat=currentSeat-1 WHERE id=?`,
