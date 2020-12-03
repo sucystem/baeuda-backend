@@ -493,6 +493,7 @@ router.post('/out/:study_id', async function (req, res) {
       });
     } else {
       await db.query(sql.study.deleteRegistStudyByStudyIdAndUserId, [study_id, student_id, 1]);
+      await db.query(sql.study.minusCurSeatByStudyId, [study_id]);
       res.status(200).send({
         result: "true",
         data: [],
